@@ -1602,7 +1602,7 @@ export const spec: GroupDef[] = [
           },
           {
             flags: "--from <timestamp>",
-            description: "Process from Unix timestamp in milliseconds"
+            description: "Process from Unix timestamp in seconds"
           }
         ],
         handler: "ledger/reprocess"
@@ -2308,11 +2308,11 @@ export const spec: GroupDef[] = [
         options: [
           {
             flags: "--from <timestamp>",
-            description: "Start Unix timestamp in milliseconds (e.g. 1704067200000 for 2024-01-01)"
+            description: "Start Unix timestamp in seconds (e.g. 1704067200 for 2024-01-01)"
           },
           {
             flags: "--to <timestamp>",
-            description: "End Unix timestamp in milliseconds (e.g. 1735689600000 for 2025-01-01)"
+            description: "End Unix timestamp in seconds (e.g. 1735689600 for 2025-01-01)"
           }
         ],
         arguments: [
@@ -2336,12 +2336,12 @@ export const spec: GroupDef[] = [
           },
           {
             flags: "--from <timestamp>",
-            description: "Start Unix timestamp in milliseconds (e.g. 1704067200000 for 2024-01-01)",
+            description: "Start Unix timestamp in seconds (e.g. 1704067200 for 2024-01-01)",
             required: true
           },
           {
             flags: "--to <timestamp>",
-            description: "End Unix timestamp in milliseconds (e.g. 1735689600000 for 2025-01-01)",
+            description: "End Unix timestamp in seconds (e.g. 1735689600 for 2025-01-01)",
             required: true
           }
         ],
@@ -2634,8 +2634,7 @@ export const spec: GroupDef[] = [
           },
           {
             flags: "--snapshot-timestamp <ts>",
-            description:
-              'Snapshot Unix timestamp in milliseconds (run "live-view snapshots" to list)'
+            description: 'Snapshot Unix timestamp in seconds (run "live-view snapshots" to list)'
           },
           {
             flags: "--exchanges <json>",
