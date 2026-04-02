@@ -1,8 +1,8 @@
 # cryptact CLI
 
-[![npm version](https://img.shields.io/npm/v/cryptact-cli.svg)](https://www.npmjs.com/package/cryptact-cli)
-[![license](https://img.shields.io/npm/l/cryptact-cli.svg)](https://github.com/pafin-inc/cryptact-cli/blob/master/LICENSE)
-[![node](https://img.shields.io/node/v/cryptact-cli.svg)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@pafin/cryptact-cli.svg)](https://www.npmjs.com/package/@pafin/cryptact-cli)
+[![license](https://img.shields.io/npm/l/@pafin/cryptact-cli.svg)](https://github.com/pafin-inc/cryptact-cli/blob/master/LICENSE)
+[![node](https://img.shields.io/node/v/@pafin/cryptact-cli.svg)](https://nodejs.org/)
 
 > Manage your crypto taxes from the terminal — or bring your own agent.
 > Import from 175+ exchanges and blockchains, track DeFi wallets, calculate gains, and generate tax reports.
@@ -19,7 +19,7 @@
 - **JSON output** — pipe `--json` into `jq`, scripts, or your own tooling
 - **Agent-friendly** — structured CLI designed for AI agents and automation
 
-Learn more about all features at [cryptact.com/features](https://www.cryptact.com/features).
+Learn more about all features at [cryptact.com](https://www.cryptact.com/en/features).
 
 ---
 
@@ -32,13 +32,13 @@ Learn more about all features at [cryptact.com/features](https://www.cryptact.co
 ### Install
 
 ```bash
-npm install -g cryptact-cli
+npm install -g @pafin/cryptact-cli
 ```
 
 Or run directly with npx — no install needed:
 
 ```bash
-npx cryptact-cli auth login
+npx @pafin/cryptact-cli auth login
 ```
 
 **Requirements:** Node.js >= 22
