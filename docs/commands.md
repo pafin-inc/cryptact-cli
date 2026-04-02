@@ -95,13 +95,13 @@ cryptact ledger reprocess
 cryptact ledger reprocess --force-rebuild
 
 # Reprocess only transactions after a specific date
-cryptact ledger reprocess --from 1704067200
+cryptact ledger reprocess --from 1704067200000
 ```
 
-| Option               | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| `--force-rebuild`    | Recalculate everything from scratch                 |
-| `--from <timestamp>` | Only process transactions after this Unix timestamp |
+| Option               | Description                                                        |
+| -------------------- | ------------------------------------------------------------------ |
+| `--force-rebuild`    | Recalculate everything from scratch                                |
+| `--from <timestamp>` | Only process transactions after this Unix timestamp (milliseconds) |
 
 ### `ledger summary`
 
@@ -562,7 +562,7 @@ cryptact portfolio history detailed-pnl
 cryptact portfolio history global-pnl
 
 # With date range (Unix timestamps)
-cryptact portfolio history detailed --from 1704067200 --to 1735689600
+cryptact portfolio history detailed --from 1704067200000 --to 1735689600000
 ```
 
 **History types:**
@@ -578,7 +578,7 @@ View the history of a specific cryptocurrency.
 ```bash
 cryptact portfolio coin-history \
   --coin BTC \
-  --from 1704067200 \
+  --from 1704067200000 \
   --to 1735689600
 ```
 

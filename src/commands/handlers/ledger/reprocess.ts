@@ -12,9 +12,8 @@ export async function handler({
   options: LedgerReprocessOptions;
   cmd: Command;
 }): Promise<void> {
-  const body: Record<string, unknown> = { ledgerId };
-  if (options.forceRebuild) body.forceRebuild = true;
-  if (options.from) body.fromTimestamp = options.from;
+  const body: Record<string, unknown> = { ledgerId, forceRebuild: options.forceRebuild ?? false };
+  if (options.from) body.fromTimestamp = Number(options.from);
 
   const data = await apiPost<LedgerReprocessResponse>(`/ledger/${ledgerId}/process`, body);
 
