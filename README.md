@@ -32,7 +32,7 @@ Learn more about all features at [cryptact.com](https://www.cryptact.com/en/feat
 ### Install
 
 ```bash
-npm install -g cryptact-cli
+npm install -g @pafin/cryptact-cli
 ```
 
 Or run directly with npx — no install needed:
