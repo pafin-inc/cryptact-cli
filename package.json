@@ -1,0 +1,46 @@
+{
+  "name": "@pafin/cryptact-cli",
+  "version": "1.1.0",
+  "description": "CLI for cryptact service",
+  "main": "dist/index.js",
+  "bin": {
+    "cryptact": "dist/index.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -b",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "open": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "cryptact",
+    "crypto",
+    "tax",
+    "cli",
+    "cryptocurrency",
+    "portfolio"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pafin-inc/cryptact-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pafin-inc/cryptact-cli/issues"
+  },
+  "homepage": "https://github.com/pafin-inc/cryptact-cli#readme"
+}
