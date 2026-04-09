@@ -220,6 +220,7 @@ export interface DefiSearchOptions {
   services?: string;
   actionDetail?: string;
   assetHashes?: string;
+  methods?: string;
   page?: string;
 }
 
@@ -2471,6 +2472,10 @@ export const spec: GroupDef[] = [
           {
             flags: "--asset-hashes <hashes>",
             description: "Comma-separated asset hashes"
+          },
+          {
+            flags: "--methods <methods>",
+            description: "Comma-separated method IDs (hex)"
           },
           {
             flags: "--page <n>",
