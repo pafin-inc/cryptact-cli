@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiEditsOptions, DefiEditsResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { info, isJsonMode, log, printJson } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -27,11 +27,11 @@ export async function handler({
   const edits = data.userEdits || {};
   const entries = Object.entries(edits);
   if (entries.length === 0) {
-    console.log("No user edits found.");
+    info("No user edits found.");
     return;
   }
 
   for (const [key, status] of entries) {
-    console.log(`${key}: ${status}`);
+    log(`${key}: ${status}`);
   }
 }

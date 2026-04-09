@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { BillingPlansResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 import { assertNotEnterprise } from "../../../lib/resolve-enterprise";
 
 export async function handler({
@@ -23,10 +23,10 @@ export async function handler({
     ["Tier", "Amount", "Currency", "Active", "Purchasable"],
     plans.map(p => [
       p.billingTier,
-      String(p.amount),
+      fmt.value(p.amount),
       p.currency,
-      p.active ? "Yes" : "No",
-      p.isPurchasable ? "Yes" : "No"
+      fmt.bool(p.active ?? false),
+      fmt.bool(p.isPurchasable ?? false)
     ])
   );
 }

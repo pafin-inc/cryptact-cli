@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { WalletAddMultiOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -28,5 +28,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Wallet address added to ${chains.length} chain(s): ${chains.join(", ")}`);
+  success(`Wallet address added to ${chains.length} chain(s): ${chains.join(", ")}`);
 }

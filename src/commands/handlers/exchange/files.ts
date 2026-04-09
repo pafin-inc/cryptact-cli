@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 interface ExchangeFile {
   fileName: string;
@@ -27,6 +27,10 @@ export async function handler({
 
   printTable(
     ["File Name", "Status", "Created"],
-    files.map(f => [f.fileName, f.state || "-", f.timestamp ? f.timestamp.substring(0, 10) : "-"])
+    files.map(f => [
+      f.fileName,
+      f.state ? fmt.state(f.state) : "-",
+      fmt.datetime(f.timestamp, "datetime")
+    ])
   );
 }

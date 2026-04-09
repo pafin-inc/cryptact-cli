@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { PortfolioShowOptions, PortfolioShowResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, log, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -23,17 +23,17 @@ export async function handler({
     return;
   }
 
-  console.log(`Portfolio (${data.reportingCcy})\n`);
+  log(`Portfolio (${data.reportingCcy})\n`);
 
   printTable(
     ["Coin", "Position", "Price", "Market Value", "Avg Cost", "Unrealized P&L"],
     data.detail.coins.map(c => [
       c.coin,
-      c.position,
-      c.price ? displayValue(c.price) : "-",
-      displayValue(c.mv),
-      displayValue(c.averageCost),
-      displayValue(c.unrealizedGains)
+      fmt.value(c.position),
+      fmt.value(c.price),
+      fmt.value(c.mv),
+      fmt.value(c.averageCost),
+      fmt.value(c.unrealizedGains)
     ])
   );
 }

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiMarkRiskyOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -27,5 +27,5 @@ export async function handler({
     return;
   }
 
-  console.log("Unclassified transactions marked as risky.");
+  success("Unclassified transactions marked as risky.");
 }

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { PortfolioCoinHistoryOptions, PortfolioCoinHistoryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -27,7 +27,7 @@ export async function handler({
 
   const results = (data.aggregates || []) as unknown as Record<string, unknown>[];
   if (results.length === 0) {
-    console.log(`No history data available (status: ${data.status}).`);
+    info(`No history data available (status: ${data.status}).`);
     return;
   }
 

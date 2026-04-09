@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { WalletAddOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,5 +26,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Wallet address added: ${options.chain} ${options.address}`);
+  success(`Wallet address added: ${options.chain} ${options.address}`);
 }

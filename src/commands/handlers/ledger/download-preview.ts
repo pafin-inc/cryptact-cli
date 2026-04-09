@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import type { LedgerDownloadPreviewResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { getLang, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { getLang } from "../../../lib/settings";
 
 const headers = {
   en: {

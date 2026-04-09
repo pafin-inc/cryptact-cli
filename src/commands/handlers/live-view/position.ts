@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { LiveViewPositionOptions, LiveViewPositionResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { error, fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -16,7 +16,7 @@ export async function handler({
   try {
     exchanges = JSON.parse(options.exchanges as string);
   } catch {
-    console.error("Error: --exchanges must be valid JSON array.");
+    error("--exchanges must be valid JSON array.");
     process.exit(1);
   }
 
@@ -43,7 +43,7 @@ export async function handler({
   if (errors.length > 0) {
     for (const e of errors) {
       const sub = e.subAccount ? ` (${e.subAccount})` : "";
-      console.error(`Error: ${e.exchange}${sub} — error code ${e.error_code}`);
+      error(`${e.exchange}${sub} — error code ${e.error_code}`);
     }
   }
 
@@ -52,14 +52,14 @@ export async function handler({
       g.coin,
       p.exchange,
       p.asset,
-      p.amount,
-      p.price ?? "-",
-      p.marketValue ?? "-"
+      fmt.value(p.amount),
+      fmt.value(p.price),
+      fmt.value(p.marketValue)
     ])
   );
 
   if (allPositions.length === 0 && errors.length === 0) {
-    console.log("No positions.");
+    info("No positions.");
     return;
   }
 

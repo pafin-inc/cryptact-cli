@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { WalletListResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -22,6 +22,6 @@ export async function handler({
 
   printTable(
     ["Chain", "Address", "Memo"],
-    addresses.map(a => [a.chain, a.address, a.memo || "-"])
+    addresses.map(a => [a.chain, fmt.id(a.address), a.memo || "-"])
   );
 }

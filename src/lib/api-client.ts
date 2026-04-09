@@ -2,9 +2,14 @@ import { refreshAccessToken } from "./auth-flow";
 import { getConfig, version } from "./config";
 import { loadTokens, saveTokens, StoredTokens } from "./token-store";
 
-type ApiResponse<T = unknown> =
-  | ({ success: true } & T)
-  | { success: false; error: { code: string; params?: Record<string, unknown> } };
+type ApiErrorResponse = {
+  success: false;
+  error: { code: string; params?: Record<string, unknown> };
+};
+
+function isApiError(data: unknown): data is ApiErrorResponse {
+  return typeof data === "object" && data !== null && (data as ApiErrorResponse).success === false;
+}
 
 async function getValidToken(): Promise<string> {
   const tokens = loadTokens();
@@ -54,13 +59,13 @@ async function apiRequest<T>(method: string, path: string, body?: unknown): Prom
 
   if (res.status === 204) return {} as unknown as T;
 
-  const data = (await res.json()) as ApiResponse<T>;
-  if (!data.success) {
+  const data = await res.json();
+  if (isApiError(data)) {
     const errCode = data.error?.code || "UNKNOWN";
     throw new Error(`API error: ${errCode}`);
   }
 
-  return data as unknown as T;
+  return data as T;
 }
 
 export async function apiGet<T>(path: string): Promise<T> {

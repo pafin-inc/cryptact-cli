@@ -5,26 +5,20 @@ import type {
   LTDInstrumentSummaryAs
 } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import {
-  displayValue,
-  isJsonMode,
-  printJson,
-  printKeyValue,
-  printTable
-} from "../../../lib/output";
+import { fmt, isJsonMode, log, printJson, printKeyValue, printTable } from "../../../lib/output";
 
 function renderInstrumentTable(summaries: (LTDInstrumentSummaryAs | InstrumentSummaryAs)[]): void {
   printTable(
     ["Instrument", "Position", "Wgt Cost", "Revenue", "Cost", "P&L Total", "P&L Long", "P&L Short"],
     summaries.map(s => [
       s.instrument.instrumentId,
-      s.position ?? "-",
-      s.weightedCost ? displayValue(s.weightedCost) : "-",
-      s.totalRevenue ? displayValue(s.totalRevenue) : "-",
-      s.totalCost ? displayValue(s.totalCost) : "-",
-      displayValue(s.pl.total),
-      displayValue(s.pl.long),
-      displayValue(s.pl.short)
+      fmt.value(s.position),
+      fmt.value(s.weightedCost),
+      fmt.value(s.totalRevenue),
+      fmt.value(s.totalCost),
+      fmt.value(s.pl.total),
+      fmt.value(s.pl.long),
+      fmt.value(s.pl.short)
     ])
   );
 }
@@ -46,66 +40,66 @@ export async function handler({
   const s = data.summary;
 
   // --- Lifetime by instrument ---
-  console.log("=== Lifetime by Instrument ===\n");
+  log("=== Lifetime by Instrument ===\n");
   renderInstrumentTable(s.byInstrument.summaries);
   const ltdTotal = s.byInstrument.total.pl;
-  console.log(
-    `\nTotal P&L: ${displayValue(ltdTotal.total)}  (long: ${displayValue(
+  log(
+    `\nTotal P&L: ${fmt.value(ltdTotal.total)}  (long: ${fmt.value(
       ltdTotal.long
-    )}, short: ${displayValue(ltdTotal.short)})`
+    )}, short: ${fmt.value(ltdTotal.short)})`
   );
 
   // --- Yearly by instrument ---
   for (const yg of s.byYearInstrument) {
-    console.log(`\n=== FY ${yg.fiscalYear} — By Instrument ===\n`);
+    log(`\n=== FY ${yg.fiscalYear} — By Instrument ===\n`);
     if (yg.summaries.length === 0) {
-      console.log("No data.");
+      log("No data.");
       continue;
     }
     renderInstrumentTable(yg.summaries);
-    console.log(
-      `\nTotal P&L: ${displayValue(yg.total.pl.total)}  (long: ${displayValue(
+    log(
+      `\nTotal P&L: ${fmt.value(yg.total.pl.total)}  (long: ${fmt.value(
         yg.total.pl.long
-      )}, short: ${displayValue(yg.total.pl.short)})`
+      )}, short: ${fmt.value(yg.total.pl.short)})`
     );
   }
 
   // --- Yearly by exchange ---
   for (const yg of s.byYearExchange) {
     if (yg.summaries.length === 0) continue;
-    console.log(`\n=== FY ${yg.fiscalYear} — By Exchange ===\n`);
+    log(`\n=== FY ${yg.fiscalYear} — By Exchange ===\n`);
     printTable(
       ["Exchange", "P&L Total", "P&L Long", "P&L Short", "Grouped", "Ungrouped"],
       yg.summaries.map(es => [
         es.exchangeId.exchangeId ?? "-",
-        displayValue(es.pl.total),
-        displayValue(es.pl.long),
-        displayValue(es.pl.short),
-        String(es.count.grouped),
-        String(es.count.ungrouped)
+        fmt.value(es.pl.total),
+        fmt.value(es.pl.long),
+        fmt.value(es.pl.short),
+        fmt.value(es.count.grouped),
+        fmt.value(es.count.ungrouped)
       ])
     );
   }
 
   // --- Metadata ---
-  console.log("\n=== Transaction Info ===\n");
+  log("\n=== Transaction Info ===\n");
   printKeyValue([
     ["Actions", s.actions.join(", ") || "-"],
-    ["Pairs", s.pairs.map(p => p.replace(/\|~~\|/g, "/")).join(", ") || "-"],
+    ["Pairs", s.pairs.map(p => fmt.pair(p)).join(", ") || "-"],
     ["Sources", s.sources.join(", ") || "-"],
     ["Fee Currencies", s.feeCurrencies.join(", ") || "-"],
-    ["Transactions (grouped)", String(s.transactionCount.grouped)],
-    ["Transactions (ungrouped)", String(s.transactionCount.ungrouped)],
-    ["Transactions (generated)", String(s.transactionCount.generated)]
+    ["Transactions (grouped)", fmt.value(s.transactionCount.grouped)],
+    ["Transactions (ungrouped)", fmt.value(s.transactionCount.ungrouped)],
+    ["Transactions (generated)", fmt.value(s.transactionCount.generated)]
   ]);
 
   // --- Feedback codes ---
   const fbEntries = Object.entries(s.feedbackCodes as Record<string, number>);
   if (fbEntries.length > 0) {
-    console.log("\n=== Feedback Codes ===\n");
+    log("\n=== Feedback Codes ===\n");
     printTable(
       ["Code", "Count"],
-      fbEntries.map(([code, count]) => [code, String(count)])
+      fbEntries.map(([code, count]) => [code, fmt.value(count)])
     );
   }
 }

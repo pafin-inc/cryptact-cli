@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { BillingInvoicesOptions, BillingInvoicesResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 import { assertNotEnterprise } from "../../../lib/resolve-enterprise";
 
 export async function handler({
@@ -29,11 +29,11 @@ export async function handler({
   printTable(
     ["ID", "Date", "Amount", "Currency", "Status"],
     invoices.map(inv => [
-      inv.id,
+      fmt.id(inv.id),
       String(inv.created),
-      String(inv.amountDue),
+      fmt.value(inv.amountDue),
       inv.currency || "-",
-      inv.status || "-"
+      inv.status ? fmt.state(inv.status) : "-"
     ])
   );
 }

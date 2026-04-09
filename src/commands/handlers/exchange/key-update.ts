@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { ExchangeKeyUpdateOptions, ExchangeKeyUpdateResponse } from "../../../cli-spec";
 import { apiPut } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { error, isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -16,7 +16,7 @@ export async function handler({
   try {
     parsed = JSON.parse(options.endpoints as string);
   } catch {
-    console.error("Error: --endpoints must be valid JSON.");
+    error("--endpoints must be valid JSON.");
     process.exit(1);
   }
   const endpoints = parsed.map(e => ({
@@ -39,5 +39,5 @@ export async function handler({
     return;
   }
 
-  console.log(`API key updated for ${options.exchange}.`);
+  success(`API key updated for ${options.exchange}.`);
 }

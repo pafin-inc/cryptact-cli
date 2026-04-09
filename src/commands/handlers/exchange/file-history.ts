@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { ExchangeFileHistoryOptions, ExchangeFileHistoryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,6 +26,10 @@ export async function handler({
 
   printTable(
     ["File Name", "Status", "Created"],
-    files.map(f => [f.fileName, f.state || "-", f.timestamp ? f.timestamp.substring(0, 10) : "-"])
+    files.map(f => [
+      f.fileName,
+      f.state ? fmt.state(f.state) : "-",
+      fmt.datetime(f.timestamp, "datetime")
+    ])
   );
 }

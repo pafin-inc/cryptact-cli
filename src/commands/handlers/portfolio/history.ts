@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { PortfolioHistoryOptions, PortfolioHistoryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -30,7 +30,7 @@ export async function handler({
 
   const results = (data.aggregates || []) as unknown as Record<string, unknown>[];
   if (results.length === 0) {
-    console.log(`No history data available (status: ${data.status}).`);
+    info(`No history data available (status: ${data.status}).`);
     return;
   }
 
@@ -42,7 +42,7 @@ export async function handler({
         const val = row[h];
         if (val === null || val === undefined) return "-";
         const str = String(val);
-        return typeof val === "string" ? displayValue(str) : str;
+        return typeof val === "string" ? fmt.value(str) : str;
       })
     )
   );

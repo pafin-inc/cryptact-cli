@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { LedgerDownloadOptions, LedgerDownloadResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { info, isJsonMode, printJson } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -21,5 +21,5 @@ export async function handler({
     return;
   }
 
-  console.log("Download triggered. You will receive an email with the download link.");
+  info("Download triggered. You will receive an email with the download link.");
 }

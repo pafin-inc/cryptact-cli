@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import type { LedgerStatusResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { getLang, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { getLang } from "../../../lib/settings";
 
 const labels = {
   en: {
@@ -40,14 +41,18 @@ export async function handler({
   const l = labels[lang];
 
   printKeyValue([
-    [l.state, String(extracted.state ?? "")],
-    [l.processId, String(extracted.processId ?? "")],
-    [l.ts, extracted.ts !== null ? new Date((extracted.ts as number) * 1000).toISOString() : "-"],
+    [l.state, fmt.state(String(extracted.state ?? ""))],
+    [l.processId, fmt.id(String(extracted.processId ?? ""))],
+    [
+      l.ts,
+      fmt.datetime(extracted.ts !== null ? (extracted.ts as number) * 1000 : null, "datetime")
+    ],
     [
       l.lastUpdateTs,
-      extracted.lastUpdateTs !== null
-        ? new Date((extracted.lastUpdateTs as number) * 1000).toISOString()
-        : "-"
+      fmt.datetime(
+        extracted.lastUpdateTs !== null ? (extracted.lastUpdateTs as number) * 1000 : null,
+        "datetime"
+      )
     ],
     [l.error, extracted.error !== null ? String(extracted.error) : "-"]
   ]);

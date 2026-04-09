@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiDeleteEditOptions } from "../../../cli-spec";
 import { apiDelete } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -24,5 +24,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Edit deleted for ${options.chain} ${options.txHash}.`);
+  success(`Edit deleted for ${options.chain} ${options.txHash}.`);
 }

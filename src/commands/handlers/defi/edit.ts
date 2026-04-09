@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiEditOptions, DefiEditResponse } from "../../../cli-spec";
 import { apiPut } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -27,5 +27,5 @@ export async function handler({
   }
 
   const edits = data.userEdits || [];
-  console.log(`${edits.length} edit(s) applied.`);
+  success(`${edits.length} edit(s) applied.`);
 }

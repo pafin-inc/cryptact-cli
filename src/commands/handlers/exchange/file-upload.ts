@@ -3,7 +3,7 @@ import * as path from "path";
 import { Command } from "commander";
 import type { ExchangeFileUploadOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { error, isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -18,7 +18,7 @@ export async function handler({
 }): Promise<void> {
   const filePath = path.resolve(args.file);
   if (!fs.existsSync(filePath)) {
-    console.error(`Error: file not found: ${filePath}`);
+    error(`File not found: ${filePath}`);
     process.exit(1);
   }
 
@@ -47,7 +47,7 @@ export async function handler({
 
   const presigned = preUpload.results?.[0];
   if (!presigned) {
-    console.error("Error: failed to get presigned upload URL.");
+    error("Failed to get presigned upload URL.");
     process.exit(1);
   }
 
@@ -61,7 +61,7 @@ export async function handler({
   const s3Res = await fetch(presigned.url, { method: "POST", body: formData });
   if (!s3Res.ok) {
     const text = await s3Res.text();
-    console.error(`Error: S3 upload failed (${s3Res.status}): ${text}`);
+    error(`S3 upload failed (${s3Res.status}): ${text}`);
     process.exit(1);
   }
 
@@ -88,5 +88,5 @@ export async function handler({
     return;
   }
 
-  console.log(`File "${fileName}" uploaded successfully.`);
+  success(`File "${fileName}" uploaded successfully.`);
 }

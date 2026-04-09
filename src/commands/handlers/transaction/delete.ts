@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionDeleteResponse } from "../../../cli-spec";
 import { apiDelete } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -25,5 +25,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Transaction ${uuid} deleted.`);
+  success(`Transaction ${uuid} deleted.`);
 }

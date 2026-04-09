@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { WalletSyncStatusResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -24,7 +24,7 @@ export async function handler({
     ["Exchange", "Sub Account", "Status", "Progress", "Endpoint"],
     statuses.map(s => {
       const progress = s.progress !== null && s.progress !== undefined ? String(s.progress) : "-";
-      return [s.exchange, s.subAccount || "-", s.status, progress, s.endpoint || "-"];
+      return [s.exchange, s.subAccount || "-", fmt.state(s.status), progress, s.endpoint || "-"];
     })
   );
 }

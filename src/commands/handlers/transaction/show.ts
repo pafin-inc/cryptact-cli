@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionShowOptions, TransactionShowResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -32,10 +32,10 @@ export async function handler({
     ["Action", d.act],
     ["Base", d.bc],
     ["Counter", d.cc],
-    ["Pair", d.pair],
-    ["Volume", displayValue(d.vol)],
-    ["Price", displayValue(d.prc)],
-    ["Fee", `${displayValue(d.fee)} ${d.fc}`],
+    ["Pair", fmt.pair(d.pair)],
+    ["Volume", fmt.value(d.vol)],
+    ["Price", fmt.value(d.prc)],
+    ["Fee", `${fmt.value(d.fee)} ${d.fc}`],
     ["Source", d.src],
     ["Comment", d.comment || ""]
   ]);

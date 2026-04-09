@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { WalletDeleteOptions } from "../../../cli-spec";
 import { apiDelete } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -23,5 +23,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Wallet address removed: ${options.chain} ${options.address}`);
+  success(`Wallet address removed: ${options.chain} ${options.address}`);
 }

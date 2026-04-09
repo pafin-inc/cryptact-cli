@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionBalanceSummaryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -38,7 +38,7 @@ export async function handler({
     | undefined;
   const changes = balance?.changes || [];
   if (changes.length === 0) {
-    console.log("No balance changes.");
+    info("No balance changes.");
     return;
   }
 
@@ -48,9 +48,9 @@ export async function handler({
       c.type,
       c.instrument.instrumentId,
       c.wallet,
-      displayValue(c.change),
-      displayValue(c.changeInRc),
-      displayValue(c.balance)
+      fmt.value(c.change),
+      fmt.value(c.changeInRc),
+      fmt.value(c.balance)
     ])
   );
 }

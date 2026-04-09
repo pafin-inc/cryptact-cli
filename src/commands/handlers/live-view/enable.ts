@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -20,5 +20,5 @@ export async function handler({
     return;
   }
 
-  console.log("Live-view position snapshots enabled.");
+  success("Live-view position snapshots enabled.");
 }

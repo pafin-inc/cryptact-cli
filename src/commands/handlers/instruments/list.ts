@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { InstrumentsListResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { isJsonMode, log, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   cmd
@@ -27,5 +27,5 @@ export async function handler({
   const fxRows = fxIds.map(id => [id, data.fxNames.en[id] || "-", "-"]);
 
   printTable(["ID", "Name", "Market Cap"], [...cryptos, ...fxRows]);
-  console.log(`\n${cryptos.length} crypto, ${fxRows.length} FX instruments`);
+  log(`\n${cryptos.length} crypto, ${fxRows.length} FX instruments`);
 }

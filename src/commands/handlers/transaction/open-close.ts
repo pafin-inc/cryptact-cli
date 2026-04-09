@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionOpenCloseResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,20 +26,20 @@ export async function handler({
 
   const rows = data.openClose || [];
   if (rows.length === 0) {
-    console.log("No open/close data available.");
+    info("No open/close data available.");
     return;
   }
 
   printTable(
     ["UUID", "Currency", "Side", "Volume", "Price", "Fee", "Cost Basis"],
     rows.map(r => [
-      r.txnUuid.substring(0, 8),
+      fmt.id(r.txnUuid.substring(0, 8)),
       r.ccy,
       r.side,
-      displayValue(r.vol),
-      displayValue(r.prc),
-      displayValue(r.fee),
-      displayValue(r.cb)
+      fmt.value(r.vol),
+      fmt.value(r.prc),
+      fmt.value(r.fee),
+      fmt.value(r.cb)
     ])
   );
 }

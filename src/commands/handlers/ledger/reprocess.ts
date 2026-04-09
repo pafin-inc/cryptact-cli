@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { LedgerReprocessOptions, LedgerReprocessResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { info, isJsonMode, printJson } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -12,7 +12,8 @@ export async function handler({
   options: LedgerReprocessOptions;
   cmd: Command;
 }): Promise<void> {
-  const body: Record<string, unknown> = { ledgerId, forceRebuild: options.forceRebuild ?? false };
+  const body: Record<string, unknown> = { ledgerId };
+  if (options.forceRebuild) body.forceRebuild = true;
   if (options.from) body.fromTimestamp = Number(options.from);
 
   const data = await apiPost<LedgerReprocessResponse>(`/ledger/${ledgerId}/process`, body);
@@ -22,5 +23,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Processing triggered. Status: ${data.processStatus.state}`);
+  info(`Processing triggered. Status: ${data.processStatus.state}`);
 }

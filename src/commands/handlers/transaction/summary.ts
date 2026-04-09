@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionSummaryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,12 +26,17 @@ export async function handler({
 
   const summaries = data.summaries || [];
   if (summaries.length === 0) {
-    console.log("No summary data available.");
+    info("No summary data available.");
     return;
   }
 
   printTable(
     ["Instrument", "Type", "Change", "Position"],
-    summaries.map(s => [s.instrument.instrumentId, s.instrument.instrumentType, s.chg, s.position])
+    summaries.map(s => [
+      s.instrument.instrumentId,
+      s.instrument.instrumentType,
+      fmt.value(s.chg),
+      fmt.value(s.position)
+    ])
   );
 }

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { BillingPlanResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
 import { assertNotEnterprise } from "../../../lib/resolve-enterprise";
 
 export async function handler({
@@ -27,8 +27,8 @@ export async function handler({
     ["Plan", sub.plan.billingTier],
     ["Amount", `${sub.plan.amount} ${sub.plan.currency.toUpperCase()}`],
     ["Status", sub.status],
-    ["Period Start", new Date(sub.currentPeriodStart * 1000).toISOString().substring(0, 10)],
-    ["Period End", new Date(sub.currentPeriodEnd * 1000).toISOString().substring(0, 10)],
+    ["Period Start", fmt.datetime(sub.currentPeriodStart * 1000)],
+    ["Period End", fmt.datetime(sub.currentPeriodEnd * 1000)],
     ["Cancel at Period End", sub.cancelAtPeriodEnd ? "Yes" : "No"],
     ["Auto Renewal", data.autoRenewalEpoch || "-"]
   ]);

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionSearchOptions, TransactionSearchResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { displayValue, isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, log, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -44,15 +44,15 @@ export async function handler({
   printTable(
     ["UUID", "Date", "Action", "Pair", "Volume", "Price", "Fee", "Source"],
     data.results.map(t => [
-      t.uuid.substring(0, 8),
-      String(t.ts).substring(0, 10),
-      t.act,
-      t.pair,
-      displayValue(t.vol),
-      displayValue(t.prc),
-      `${displayValue(t.fee)} ${t.fc}`,
+      fmt.id(t.uuid.substring(0, 8)),
+      fmt.datetime(t.ts, "datetime"),
+      fmt.action(t.act),
+      fmt.pair(t.pair),
+      fmt.value(t.vol),
+      fmt.value(t.prc),
+      `${fmt.value(t.fee)} ${t.fc}`,
       t.src
     ])
   );
-  console.log(`\nTotal: ${data.total}`);
+  log(`\nTotal: ${data.total}`);
 }

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiSearchOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, log, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -39,7 +39,7 @@ export async function handler({
 
   const transactions = data.transactions || [];
   if (transactions.length === 0) {
-    console.log("No DeFi transactions found.");
+    info("No DeFi transactions found.");
     return;
   }
 
@@ -49,12 +49,12 @@ export async function handler({
       const resolved = t.resolved as Record<string, string> | undefined;
       return [
         String(t.chain || ""),
-        String(t.hash || "").substring(0, 16),
-        resolved?.action || "-",
+        fmt.id(String(t.hash || "").substring(0, 16)),
+        resolved?.action ? fmt.action(resolved.action) : "-",
         resolved?.actionDetail || "-",
-        t.timestamp ? new Date(Number(t.timestamp)).toISOString().substring(0, 19) : "-"
+        fmt.datetime(t.timestamp ? Number(t.timestamp) : null, "datetime")
       ];
     })
   );
-  console.log(`\nTotal: ${data.total}`);
+  log(`\nTotal: ${data.total}`);
 }

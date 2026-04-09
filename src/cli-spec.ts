@@ -1,4 +1,4 @@
-// @generated — do not edit by hand. Edit scripts/cli-spec.ts then run `pnpm generate`.
+// @generated — do not edit by hand.
 
 export interface OptionDef {
   flags: string;

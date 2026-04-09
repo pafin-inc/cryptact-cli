@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as http from "http";
 import type * as net from "net";
 import { getConfig } from "./config";
+import { info, success } from "./output";
 import { saveTokens, StoredTokens } from "./token-store";
 
 function base64url(buf: Buffer): string {
@@ -183,16 +184,16 @@ export async function login(): Promise<void> {
   authUrl.searchParams.set("code_challenge", codeChallenge);
   authUrl.searchParams.set("code_challenge_method", "S256");
 
-  console.log("Opening browser for login...");
+  info("Opening browser for login...");
   // Dynamic import for ESM-only `open` package
   const open = (await import("open")).default;
   await open(authUrl.toString());
-  console.log("If the browser didn't open, visit:\n" + authUrl.toString());
+  info("If the browser didn't open, visit:\n" + authUrl.toString());
 
   const { code } = await callbackPromise;
-  console.log("Received authorization code, exchanging for tokens...");
+  info("Received authorization code, exchanging for tokens...");
 
   const tokens = await exchangeCodeForTokens(code, codeVerifier, redirectUri);
   saveTokens(tokens);
-  console.log("Login successful! Tokens saved.");
+  success("Login successful! Tokens saved.");
 }

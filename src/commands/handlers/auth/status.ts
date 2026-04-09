@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printKeyValue, warn } from "../../../lib/output";
 import { loadTokens } from "../../../lib/token-store";
 
 export async function handler({
@@ -13,7 +13,7 @@ export async function handler({
     if (isJsonMode(cmd)) {
       printJson({ authenticated: false });
     } else {
-      console.log("Not logged in. Run `cryptact auth login` to authenticate.");
+      warn("Not logged in. Run `cryptact auth login` to authenticate.");
     }
     return;
   }
@@ -31,13 +31,13 @@ export async function handler({
     });
   } else if (expired) {
     printKeyValue([
-      ["Authenticated", "yes"],
+      ["Authenticated", fmt.bool(true)],
       ["Token", "expired (will auto-refresh on next request)"]
     ]);
   } else {
     const minutes = Math.floor(expiresIn / 60);
     printKeyValue([
-      ["Authenticated", "yes"],
+      ["Authenticated", fmt.bool(true)],
       ["Token expires in", `${minutes} minutes`]
     ]);
   }

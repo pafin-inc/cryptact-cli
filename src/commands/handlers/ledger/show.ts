@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import type { LedgerShowResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { getLang, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { getLang } from "../../../lib/settings";
 
 const labels = {
   en: {

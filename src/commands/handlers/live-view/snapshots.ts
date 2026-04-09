@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { LiveViewSnapshotsResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { fmt, info, isJsonMode, log, printJson } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -23,11 +23,11 @@ export async function handler({
 
   const timestamps = data.timestamps || [];
   if (timestamps.length === 0) {
-    console.log("No snapshots available.");
+    info("No snapshots available.");
     return;
   }
 
   for (const ts of timestamps) {
-    console.log(new Date(ts * 1000).toISOString());
+    log(fmt.datetime(ts * 1000, "datetime"));
   }
 }

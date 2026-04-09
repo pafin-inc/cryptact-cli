@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { LedgerUpdateOptions, LedgerUpdateResponse } from "../../../cli-spec";
 import { apiGet, apiPut } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { error, isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -49,7 +49,7 @@ export async function handler({
   }
 
   if (Object.keys(overrides).length === 0) {
-    console.error("Error: at least one setting flag is required.");
+    error("At least one setting flag is required.");
     process.exit(1);
   }
 
@@ -64,5 +64,5 @@ export async function handler({
     return;
   }
 
-  console.log("Ledger settings updated.");
+  success("Ledger settings updated.");
 }

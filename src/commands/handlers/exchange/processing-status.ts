@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { ExchangeProcessingStatusResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
 
 export async function handler({
   cmd
@@ -16,5 +16,5 @@ export async function handler({
     return;
   }
 
-  printKeyValue([["Processing Status", data.processingStatus]]);
+  printKeyValue([["Processing Status", fmt.state(data.processingStatus)]]);
 }

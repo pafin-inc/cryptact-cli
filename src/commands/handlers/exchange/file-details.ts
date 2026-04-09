@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { ExchangeFileDetailsResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printKeyValue } from "../../../lib/output";
+import { error, fmt, isJsonMode, printJson, printKeyValue } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -14,7 +14,7 @@ export async function handler({
 }): Promise<void> {
   const fileId = parseInt(args.fileId, 10);
   if (isNaN(fileId)) {
-    console.error("Error: fileId must be a number.");
+    error("fileId must be a number.");
     process.exit(1);
   }
 
@@ -29,10 +29,10 @@ export async function handler({
   }
 
   printKeyValue([
-    ["File ID", String(data.fileId)],
+    ["File ID", fmt.id(String(data.fileId))],
     ["Exchange File", data.exchangeFileId],
     ["File Name", data.fileName],
-    ["State", data.state],
+    ["State", fmt.state(data.state)],
     ["Size", String(data.fileSize)],
     ["Sub ID", data.subId || "-"],
     ["Timestamp", String(data.timestamp)]

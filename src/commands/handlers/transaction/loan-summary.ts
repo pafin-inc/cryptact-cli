@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { TransactionLoanSummaryResponse } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, info, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,7 +26,7 @@ export async function handler({
 
   const loans = data.loans || [];
   if (loans.length === 0) {
-    console.log("No loan data available.");
+    info("No loan data available.");
     return;
   }
 
@@ -36,8 +36,8 @@ export async function handler({
       return [
         l.instrument.instrumentId,
         l.instrument.instrumentType,
-        l.loans.borrowed ?? "-",
-        l.loans.lent ?? "-"
+        fmt.value(l.loans.borrowed),
+        fmt.value(l.loans.lent)
       ];
     })
   );

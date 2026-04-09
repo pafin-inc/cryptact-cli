@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { DefiMarkTransfersSelfOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -23,5 +23,5 @@ export async function handler({
     return;
   }
 
-  console.log("Unclassified transfers marked as self-transfers.");
+  success("Unclassified transfers marked as self-transfers.");
 }

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { ExchangeKeysResponse } from "../../../cli-spec";
 import { apiGet } from "../../../lib/api-client";
-import { isJsonMode, printJson, printTable } from "../../../lib/output";
+import { fmt, isJsonMode, printJson, printTable } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,10 +26,10 @@ export async function handler({
     ["Exchange", "Public Key", "Sub Account", "Created", "Updated"],
     keys.map(k => [
       k.exchange,
-      k.pubKey.substring(0, 16) + "...",
+      fmt.id(k.pubKey.substring(0, 16) + "..."),
       k.subAccount || "-",
-      new Date(k.createdAt).toISOString().substring(0, 10),
-      new Date(k.updatedAt).toISOString().substring(0, 10)
+      fmt.datetime(k.createdAt, "datetime"),
+      fmt.datetime(k.updatedAt, "datetime")
     ])
   );
 }

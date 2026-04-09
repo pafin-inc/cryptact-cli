@@ -5,7 +5,7 @@ import type {
   TransactionShowResponse
 } from "../../../cli-spec";
 import { apiPost, apiPut } from "../../../lib/api-client";
-import { isJsonMode, printJson } from "../../../lib/output";
+import { error, isJsonMode, printJson, success } from "../../../lib/output";
 
 export async function handler({
   ledgerId,
@@ -26,7 +26,7 @@ export async function handler({
   }
 
   if (Object.keys(overrides).length === 0) {
-    console.error("Error: at least one field flag is required.");
+    error("At least one field flag is required.");
     process.exit(1);
   }
 
@@ -50,5 +50,5 @@ export async function handler({
     return;
   }
 
-  console.log(`Transaction ${result.transactionId} updated.`);
+  success(`Transaction ${result.transactionId} updated.`);
 }
