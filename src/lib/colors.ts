@@ -1,7 +1,8 @@
 import * as pc from "picocolors";
 
 /** Color formatter function type (matches picocolors signature) */
-type Formatter = (input: string | number | null | undefined) => string;
+export type FormatterInput = string | number | null | undefined;
+type Formatter = (input: FormatterInput) => string;
 
 /**
  * Check if colors should be disabled.
@@ -14,7 +15,7 @@ const isColorDisabled = (): boolean => {
 };
 
 /** Identity function that returns input unchanged */
-const identity: Formatter = (s: string | number | null | undefined): string => String(s ?? "");
+const identity: Formatter = (s: FormatterInput): string => String(s ?? "");
 
 const colorify = (color: Formatter): Formatter => {
   if (isColorDisabled()) return identity;
@@ -41,8 +42,22 @@ export const colors = {
   header: colorify(pc.bold),
   dim: colorify(pc.dim),
   bold: colorify(pc.bold),
-  muted: colorify(pc.gray)
-};
+  muted: colorify(pc.gray),
+
+  // Colors
+  black: colorify(pc.black),
+  red: colorify(pc.red),
+  green: colorify(pc.green),
+  yellow: colorify(pc.yellow),
+  blue: colorify(pc.blue),
+  magenta: colorify(pc.magenta),
+  cyan: colorify(pc.cyan),
+  white: colorify(pc.white),
+  gray: colorify(pc.gray)
+} as const;
 
 // Short alias for convenience
 export const c = colors;
+
+// export type of keys of colors object
+export type ColorName = keyof typeof colors;

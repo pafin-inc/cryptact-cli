@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { Z3 } from "../cli-spec";
-import { c } from "./colors";
+import { c, ColorName, FormatterInput } from "./colors";
 
 // ─── ANSI-aware string helpers ───────────────────────────────────────────────
 const ANSI_REGEX = /\x1b\[[0-9;]*m/g;
@@ -48,7 +48,7 @@ export const fmt = {
   },
 
   /** Format numeric value with color based on sign */
-  value(v: number | string | null | undefined): string {
+  value(v: FormatterInput): string {
     if (v === null || v === undefined) return c.dim("-");
     if (v === Z3) return c.dim("***");
     const num = typeof v === "string" ? parseFloat(v) : v;
@@ -86,16 +86,13 @@ export const fmt = {
   },
 
   /** Format trading pair (e.g., "BTC|~~|JPY" → "BTC/JPY") */
-  pair(p: string | null | undefined): string {
+  pair(p: Exclude<FormatterInput, number | Date>): string {
     if (p === null || p === undefined) return "-";
     return p.replace(/\|~~\|/g, "/");
   },
 
   /** Format date/datetime value */
-  datetime(
-    d: string | number | Date | null | undefined,
-    format: "date" | "datetime" = "date"
-  ): string {
+  datetime(d: FormatterInput | Date, format: "date" | "datetime" = "date"): string {
     if (d === null || d === undefined) return "-";
     const date = d instanceof Date ? d : new Date(d);
     if (isNaN(date.getTime())) return "-";
@@ -107,6 +104,10 @@ export const fmt = {
     const minutes = String(date.getUTCMinutes()).padStart(2, "0");
     const seconds = String(date.getUTCSeconds()).padStart(2, "0");
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  },
+
+  color(color: ColorName, str: FormatterInput): string {
+    return c[color](String(str ?? ""));
   }
 } as const;
 

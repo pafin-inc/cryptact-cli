@@ -3,7 +3,9 @@
 import { Command } from "commander";
 import { type CommandDef, spec } from "./cli-spec";
 import { version } from "./lib/config";
+import { error } from "./lib/output";
 import { resolveLedgerId } from "./lib/resolve-ledger";
+import { startUpdateCheck, waitForUpdateNotice } from "./lib/update-checker";
 
 function camelCase(s: string): string {
   return s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
@@ -51,7 +53,7 @@ function registerCommand(group: Command, cmd: CommandDef): void {
 
       await mod.handler(ctx);
     } catch (err) {
-      console.error("Error:", err instanceof Error ? err.message : String(err));
+      error(err instanceof Error ? err.message : String(err));
       process.exit(1);
     }
   });
@@ -59,13 +61,28 @@ function registerCommand(group: Command, cmd: CommandDef): void {
   group.addCommand(c);
 }
 
+// Start update check early (runs in background)
+startUpdateCheck();
+
 const program = new Command();
 
 program
   .name("cryptact")
   .description("cryptact CLI — manage your crypto tax data from the terminal")
   .version(version)
-  .option("--json", "Output raw JSON instead of formatted tables");
+  .option("--json", "Output raw JSON instead of formatted tables")
+  .option(
+    "--customer <customerGuid>",
+    "Override selected customer for this command (enterprise only)"
+  )
+  .addHelpText(
+    "after",
+    `
+Environment Variables:
+  NO_COLOR=1           Disable all colors (standard)
+  CRYPTACT_NO_COLOR=1  Disable CLI colors`
+  )
+  .exitOverride();
 
 for (const group of spec) {
   const g = program.command(group.name).description(group.description);
@@ -74,4 +91,17 @@ for (const group of spec) {
   }
 }
 
-program.parse(process.argv);
+// Run CLI and show update notice after completion
+(async () => {
+  let exitCode = 0;
+  try {
+    await program.parseAsync(process.argv);
+  } catch (err) {
+    // Commander throws on --help, --version, and errors when exitOverride is set
+    if (err instanceof Error && "exitCode" in err) {
+      exitCode = (err as Error & { exitCode: number }).exitCode;
+    }
+  }
+  await waitForUpdateNotice();
+  process.exit(exitCode);
+})();
