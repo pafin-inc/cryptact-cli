@@ -26,6 +26,7 @@ export async function handler({
   if (options.services) body.services = (options.services as string).split(",");
   if (options.actionDetail) body.actionDetail = (options.actionDetail as string).split(",");
   if (options.assetHashes) body.assetHashes = (options.assetHashes as string).split(",");
+  if (options.methods) body.methods = (options.methods as string).split(",");
 
   const data = await apiPost<{ transactions: Record<string, unknown>[]; total: number }>(
     `/defi/ledger/${ledgerId}`,
