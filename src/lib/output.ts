@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { Z3 } from "../cli-spec";
-import { c, ColorName, FormatterInput } from "./colors";
+import { ColorName, c, FormatterInput } from "./colors";
 
 // ─── ANSI-aware string helpers ───────────────────────────────────────────────
 const ANSI_REGEX = /\x1b\[[0-9;]*m/g;

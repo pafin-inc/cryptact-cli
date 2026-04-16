@@ -3,7 +3,7 @@ import * as http from "http";
 import type * as net from "net";
 import { getConfig } from "./config";
 import { info, success } from "./output";
-import { saveTokens, StoredTokens } from "./token-store";
+import { StoredTokens, saveTokens } from "./token-store";
 
 function base64url(buf: Buffer): string {
   return buf.toString("base64url");

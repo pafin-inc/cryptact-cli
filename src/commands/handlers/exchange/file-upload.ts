@@ -1,6 +1,6 @@
+import { Command } from "commander";
 import * as fs from "fs";
 import * as path from "path";
-import { Command } from "commander";
 import type { ExchangeFileUploadOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
 import { error, isJsonMode, printJson, success } from "../../../lib/output";

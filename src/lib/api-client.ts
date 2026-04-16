@@ -1,6 +1,6 @@
 import { refreshAccessToken } from "./auth-flow";
 import { getConfig, version } from "./config";
-import { loadTokens, saveTokens, StoredTokens } from "./token-store";
+import { loadTokens, StoredTokens, saveTokens } from "./token-store";
 
 type ApiErrorResponse = {
   success: false;
