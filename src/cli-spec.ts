@@ -38,6 +38,10 @@ export const Z3 = "000.000";
 // Generated option interfaces
 // ---------------------------------------------------------------------------
 
+export interface AuthLoginOptions {
+  deviceCode?: boolean;
+}
+
 export interface LedgerReprocessOptions {
   forceRebuild?: boolean;
   from?: string;
@@ -1561,8 +1565,14 @@ export const spec: GroupDef[] = [
     commands: [
       {
         name: "login",
-        description: "Log in to cryptact via browser (OAuth PKCE)",
-        handler: "auth/login"
+        description: "Log in to cryptact",
+        handler: "auth/login",
+        options: [
+          {
+            flags: "--device-code",
+            description: "Use device code flow (for headless/SSH sessions)"
+          }
+        ]
       },
       {
         name: "logout",
