@@ -168,6 +168,39 @@ export async function refreshAccessToken(refreshToken: string): Promise<StoredTo
   };
 }
 
+export async function revokeToken(refreshToken: string): Promise<void> {
+  const config = getConfig();
+  const body = new URLSearchParams({
+    token: refreshToken,
+    client_id: config.clientId
+  });
+
+  const res = await fetch(`${config.hydraHost}/oauth2/revoke`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString()
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Token revocation failed (${res.status}): ${text}`);
+  }
+}
+
+export async function revokeConsent(accessToken: string): Promise<void> {
+  const config = getConfig();
+
+  const res = await fetch(`${config.pafinUrl}/api/login/oauth-consent-revoke`, {
+    method: "POST",
+    headers: { Authorization: accessToken }
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Consent revocation failed (${res.status}): ${text}`);
+  }
+}
+
 export async function login(): Promise<void> {
   const config = getConfig();
   const { codeVerifier, codeChallenge } = generatePkce();

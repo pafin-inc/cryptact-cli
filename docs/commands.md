@@ -6,10 +6,15 @@ Full reference for all cryptact CLI commands. For a quick overview, see the [REA
 
 These options work with any command:
 
-| Option   | Description                                      |
-| -------- | ------------------------------------------------ |
-| `--json` | Output raw JSON data instead of formatted tables |
-| `--help` | Show help for a command                          |
+| Option              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `--json`            | Output raw JSON data instead of formatted tables  |
+| `--format <format>` | Output format: `table` (default), `json`, or `csv` |
+| `--help`            | Show help for a command                           |
+
+Destructive commands (deletes, bulk mutations, `ledger reprocess`) refuse to run
+without `--execute` and exit with code 4. Paginated search commands accept
+`--all` to fetch and combine every page, plus `--max-pages <n>` to cap the walk.
 
 ---
 
@@ -77,31 +82,46 @@ Check if your ledger is currently processing transactions.
 cryptact ledger status
 ```
 
-**Possible states:**
+**Possible states** (in `processStatus.state`):
 
-- `idle` — No processing in progress
-- `processing` — Currently calculating your taxes
-- `error` — Something went wrong during processing
+- `UNSTARTED` — no processing has run yet
+- `PREPARING`, `QUEUED_PROCESS`, `QUEUED_UPLOAD`, `QUEUED_DOWNLOAD`, `RUNNING`, `UPLOADING`, `DOWNLOADING` — processing in progress
+- `DONE` — finished successfully
+- `ERROR`, `TIMEOUT` — something went wrong during processing
+
+### `ledger list`
+
+List the ledger IDs on your account.
+
+```bash
+cryptact ledger list
+```
 
 ### `ledger reprocess`
 
 Trigger a recalculation of your taxes. Use this after adding new transactions or changing settings.
 
+This command is destructive: it refuses to run without `--execute`.
+
 ```bash
 # Start reprocessing
-cryptact ledger reprocess
+cryptact ledger reprocess --execute
 
 # Force a complete rebuild (slower but thorough)
-cryptact ledger reprocess --force-rebuild
+cryptact ledger reprocess --force-rebuild true --execute
 
 # Reprocess only transactions after a specific date
-cryptact ledger reprocess --from 1704067200000
+cryptact ledger reprocess --from 1704067200000 --execute
+
+# Trigger and poll until processing completes
+cryptact ledger reprocess --execute --wait
 ```
 
 | Option               | Description                                                        |
 | -------------------- | ------------------------------------------------------------------ |
-| `--force-rebuild`    | Recalculate everything from scratch                                |
+| `--force-rebuild <true\|false>` | Recalculate everything from scratch                     |
 | `--from <timestamp>` | Only process transactions after this Unix timestamp (milliseconds) |
+| `--wait`             | Poll processing status until it completes                          |
 
 ### `ledger summary`
 
@@ -121,13 +141,9 @@ cryptact ledger download-preview
 
 ### `ledger download`
 
-Request a tax report to be generated and sent to your email.
+Request a tax report to be generated and sent to your email. `--year` is required (accepts `null`).
 
 ```bash
-# Download report for the current fiscal year
-cryptact ledger download
-
-# Download report for a specific year
 cryptact ledger download --year 2023
 ```
 
@@ -135,27 +151,29 @@ cryptact ledger download --year 2023
 
 Change your ledger settings.
 
+Settings are passed as `--ledger.*` dot-path flags (or one `--ledger <json>` object).
+
+The route requires the **complete** settings object — every key below must be present. Fetch the
+current settings with `cryptact ledger show --json`, edit, and send the whole object back. Passing
+only the fields you want to change returns 400.
+
 ```bash
-# Change reporting currency to USD
-cryptact ledger update --reporting-ccy USD
-
-# Change cost basis method to LIFO
-cryptact ledger update --cost-basis-method LIFO
-
-# Set timezone
-cryptact ledger update --timezone "America/New_York"
+# Read current settings, change reporting currency, send the full object back
+cryptact ledger show --json | jq '.ledger | .reportingCcy = "USD"' > ledger.json
+cryptact ledger update --ledger "$(cat ledger.json)"
 ```
 
 **Available options:**
 
-| Option                            | Description                                             |
-| --------------------------------- | ------------------------------------------------------- |
-| `--reporting-ccy <ccy>`           | Currency for reports (USD, JPY, EUR, etc.)              |
-| `--cost-basis-method <method>`    | FIFO, LIFO, HIFO, "Average Cost", or "Periodic Average" |
-| `--fx-cost-basis-method <method>` | Cost basis method for foreign exchange                  |
-| `--timezone <tz>`                 | Your timezone (e.g., "Asia/Tokyo", "America/New_York")  |
-| `--fiscal-year-end-month <n>`     | Month when your fiscal year ends (1-12)                 |
-| `--defi-translator <mode>`        | DeFi processing mode: CONFIRM or DIFFERENTIAL           |
+| Option                                            | Description                                             |
+| ------------------------------------------------- | ------------------------------------------------------- |
+| `--ledger.reporting-ccy <reporting-ccy>`          | Currency for reports (USD, JPY, EUR, etc.)              |
+| `--ledger.cost-basis-method <cost-basis-method>`  | FIFO, LIFO, HIFO, "Average Cost", "Periodic Average", or "Monthly Periodic Average" |
+| `--ledger.fx-cost-basis-method <fx-cost-basis-method>` | Cost basis method for foreign exchange             |
+| `--ledger.timezone <timezone>`                    | Your timezone (e.g., "Asia/Tokyo", "America/New_York")  |
+| `--ledger.fiscal-year-end-month <fiscal-year-end-month>` | Month when your fiscal year ends (1-12, or 45 for the UK 6-April fiscal year) |
+| `--ledger.defi-translator <defi-translator>`      | DeFi processing mode: CONFIRM or DIFFERENTIAL           |
+| `--ledger <json>`                                 | Full settings object (alternative to the flags above)   |
 
 ---
 
@@ -165,99 +183,110 @@ View and manage individual cryptocurrency transactions.
 
 ### `transaction search`
 
-Find transactions matching your criteria.
+Find transactions matching your criteria. Filters are passed as `--filter.*` dot-path flags (or one `--filter <json>` object); array-valued filters take JSON arrays.
 
 ```bash
 # Show recent transactions
-cryptact transaction search --limit 20
+cryptact transaction search --filter.limit 20
 
 # Find all Binance transactions
-cryptact transaction search --source binance
+cryptact transaction search --filter.source '["binance"]'
 
 # Find all BUY transactions
-cryptact transaction search --action BUY
+cryptact transaction search --filter.action '["BUY"]'
 
 # Find transactions in a date range
-cryptact transaction search --from 2024-01-01 --to 2024-03-31
+cryptact transaction search --filter.from 2024-01-01 --filter.to 2024-03-31
 
 # Find BTC/JPY trades from Coinbase
-cryptact transaction search --source coinbase --pair BTC/JPY
+cryptact transaction search --filter.source '["coinbase"]' --filter.pair '["BTC/JPY"]'
 
 # Find transactions with errors
-cryptact transaction search --has-error
+cryptact transaction search --filter.has-error true
+
+# Fetch every page of results
+cryptact transaction search --filter.source '["binance"]' --all
 ```
 
 **Filter options:**
 
 | Option                | Description                                           |
 | --------------------- | ----------------------------------------------------- |
-| `--source <source>`   | Exchange name (e.g., binance, coinbase)               |
-| `--action <action>`   | Transaction type (BUY, SELL, MINING, etc.)            |
-| `--pair <pair>`       | Trading pair (e.g., BTC/JPY, ETH/USD)                 |
-| `--fee-currency <fc>` | Currency used for fees                                |
-| `--from <date>`       | Start date (YYYY-MM-DD)                               |
-| `--to <date>`         | End date (YYYY-MM-DD)                                 |
-| `--has-error`         | Show only transactions with errors                    |
-| `--limit <n>`         | Maximum number of results                             |
-| `--offset <n>`        | Skip this many results (for pagination)               |
-| `--order <dir>`       | Sort order: ASC (oldest first) or DESC (newest first) |
+| `--filter.source <json>`   | JSON array of exchange names, e.g. `'["binance"]'` |
+| `--filter.action <json>`   | JSON array of transaction types (BUY, SELL, MINING, etc.) |
+| `--filter.pair <json>`     | JSON array of trading pairs, e.g. `'["BTC/JPY"]'` |
+| `--filter.fee-currency <json>` | JSON array of fee currencies                   |
+| `--filter.from <from>`     | Start date (YYYY-MM-DD)                           |
+| `--filter.to <to>`         | End date (YYYY-MM-DD)                             |
+| `--filter.has-error <true\|false>` | Show only transactions with errors        |
+| `--filter.limit <n>`       | Maximum number of results                         |
+| `--filter.order-by <json>` | Sort order, e.g. `'[{"column":"ts","order":"DESC"}]'` |
+| `--filter <json>`          | Full filter object (alternative to the flags above) |
+| `--offset <n>`             | Skip this many results (for pagination)           |
+| `--all`                    | Fetch every page and combine results              |
 
 ### `transaction show`
 
-View details of a specific transaction.
+View details of a specific transaction. `--transaction-type` selects `unprocessed` (raw imports) or `processed` (calculated results); it defaults to `processed`.
 
 ```bash
-cryptact transaction show <uuid>
+cryptact transaction show <transactionId> --transaction-type processed
 ```
 
 ### `transaction edit`
 
-Modify a transaction's details.
+Modify a transaction's details. Fields use the backend's short forms, passed as `--transaction.*` dot-path flags (or one `--transaction <json>` object).
+
+The route requires the **complete** transaction object (`act, bc, cc, comment, efi, fc, fee, prc,
+src, ts, uuid, vol`). Read the raw row first, edit, and send the whole object back. Passing only the
+field you want to change returns 400.
+
+Read the **unprocessed** row, not the processed one: the processed row carries ledger-engine-derived
+`vol`/`prc`/`fee`, and writing those back corrupts the raw data.
 
 ```bash
-# Change the action type
-cryptact transaction edit <uuid> --action SELL
-
-# Update the price
-cryptact transaction edit <uuid> --price 45000.50
-
-# Add a comment
-cryptact transaction edit <uuid> --comment "Manual correction"
+cryptact transaction show <transactionId> --transaction-type unprocessed --json \
+  | jq '.detail | .comment = "Manual correction"' > tx.json
+cryptact transaction edit <transactionId> --transaction "$(cat tx.json)"
 ```
 
 **Edit options:**
 
-| Option                | Description                                |
-| --------------------- | ------------------------------------------ |
-| `--action <action>`   | Transaction type                           |
-| `--base <base>`       | Base currency (what you're buying/selling) |
-| `--counter <counter>` | Counter currency (what you're paying with) |
-| `--volume <volume>`   | Amount traded                              |
-| `--price <price>`     | Price per unit                             |
-| `--fee <fee>`         | Fee amount                                 |
-| `--fee-currency <fc>` | Fee currency                               |
-| `--source <source>`   | Source/exchange name                       |
-| `--comment <comment>` | Add a note                                 |
-| `--timestamp <ts>`    | Transaction time (ISO 8601 format)         |
+| Option                            | Description                                |
+| --------------------------------- | ------------------------------------------ |
+| `--transaction.act <act>`         | Transaction type (see: `cryptact reference show transaction_action`) |
+| `--transaction.bc <bc>`           | Base currency (what you're buying/selling) |
+| `--transaction.cc <cc>`           | Counter currency (what you're paying with) |
+| `--transaction.vol <vol>`         | Amount traded                              |
+| `--transaction.prc <prc>`         | Price per unit, in `cc`                    |
+| `--transaction.fee <fee>`         | Fee amount, in `fc`                        |
+| `--transaction.fc <fc>`           | Fee currency                               |
+| `--transaction.src <src>`         | Source/exchange name                       |
+| `--transaction.comment <comment>` | Add a note                                 |
+| `--transaction.ts <ts>`           | Transaction timestamp (ISO 8601)           |
+| `--transaction <json>`            | Full transaction object (alternative to the flags above) |
 
 ### `transaction delete`
 
-Remove a transaction from your ledger.
+Remove a transaction from your ledger (alias of `delete-transactions`; destructive, requires `--execute`).
 
 ```bash
-cryptact transaction delete <uuid>
+cryptact transaction delete --transaction.uuid <uuid> --execute
 ```
 
 ### `transaction exclude`
 
-Exclude a transaction from tax calculations (without deleting it).
+Exclude a transaction from tax calculations (without deleting it). Takes the transaction ID and the action (`exclude` or `unexclude`) as positionals. The API also requires the transaction's `ts` — read it from `transaction show`.
 
 ```bash
+# Look up the transaction's ts first
+cryptact transaction show <transactionId> --transaction-type processed
+
 # Exclude a transaction
-cryptact transaction exclude <uuid>
+cryptact transaction exclude <transactionId> exclude --transaction.ts <ts>
 
 # Re-include a previously excluded transaction
-cryptact transaction exclude <uuid> --undo
+cryptact transaction exclude <transactionId> unexclude --transaction.ts <ts>
 ```
 
 ### `transaction summary`
@@ -265,7 +294,7 @@ cryptact transaction exclude <uuid> --undo
 View the profit/loss impact of a specific transaction.
 
 ```bash
-cryptact transaction summary <uuid>
+cryptact transaction summary <transactionId>
 ```
 
 ### `transaction balance-summary`
@@ -273,7 +302,7 @@ cryptact transaction summary <uuid>
 View how a transaction affected your asset balances.
 
 ```bash
-cryptact transaction balance-summary <uuid>
+cryptact transaction balance-summary <transactionId>
 ```
 
 ### `transaction open-close`
@@ -281,7 +310,7 @@ cryptact transaction balance-summary <uuid>
 View the cost basis details — which lots were "opened" (bought) and "closed" (sold).
 
 ```bash
-cryptact transaction open-close <uuid>
+cryptact transaction open-close <transactionId>
 ```
 
 ### `transaction loan-summary`
@@ -289,7 +318,7 @@ cryptact transaction open-close <uuid>
 View loan-related details for a transaction (if applicable).
 
 ```bash
-cryptact transaction loan-summary <uuid>
+cryptact transaction loan-summary <transactionId>
 ```
 
 ---
@@ -323,31 +352,28 @@ cryptact exchange key-add \
   --exchange binance \
   --public-key "your-api-key" \
   --private-key "your-api-secret" \
-  --endpoints '[{"endpoint":"trades"}]'
+  --passphrase "" \
+  --sub-account "" \
+  --endpoints '[{"endpoint":"trades","isFromFiles":false}]'
 ```
 
-**Required options:**
+`--passphrase` and `--sub-account` default to an empty string, for the exchanges that don't use them; the rest are required.
 
-| Option                  | Description                             |
-| ----------------------- | --------------------------------------- |
-| `--exchange <exchange>` | Exchange name (e.g., binance, coinbase) |
-| `--public-key <key>`    | Your API key from the exchange          |
-| `--private-key <key>`   | Your API secret from the exchange       |
-| `--endpoints <json>`    | Data types to import (JSON array)       |
-
-**Optional:**
-
-| Option                  | Description                                 |
-| ----------------------- | ------------------------------------------- |
-| `--passphrase <phrase>` | API passphrase (required by some exchanges) |
-| `--sub-account <name>`  | Sub-account name (if using sub-accounts)    |
+| Option                          | Description                             |
+| ------------------------------- | --------------------------------------- |
+| `--exchange <exchange>`         | Exchange name (e.g., binance, coinbase) |
+| `--public-key <public-key>`     | Your API key from the exchange          |
+| `--private-key <private-key>`   | Your API secret from the exchange       |
+| `--endpoints <json>`            | Data types to import — JSON array of `{"endpoint", "isFromFiles", "startTimestampMs"?}` (see: `cryptact reference show exchange_api_endpoint`) |
+| `--passphrase <passphrase>`     | API passphrase (used by some exchanges) |
+| `--sub-account <sub-account>`   | Sub-account name (if using sub-accounts) |
 
 ### `exchange key-delete`
 
-Remove an exchange API key.
+Remove an exchange API key. Destructive: requires `--execute`. Both `--exchange` and `--sub-account` are required.
 
 ```bash
-cryptact exchange key-delete --exchange binance
+cryptact exchange key-delete --exchange binance --sub-account "" --execute
 ```
 
 ### `exchange key-update`
@@ -358,19 +384,22 @@ Update which data types to import for an existing key.
 cryptact exchange key-update \
   --exchange binance \
   --sub-account main \
-  --endpoints '[{"endpoint":"trades"},{"endpoint":"deposits"}]'
+  --endpoints '[{"endpoint":"trades","isFromFiles":false},{"endpoint":"deposits","isFromFiles":false}]'
 ```
 
 ### `exchange sync`
 
-Start importing data from an exchange.
+Start importing data from an exchange. `--exchange-id` takes a CEX exchange ID (e.g. `binance`), a DeFi chain ID (e.g. `ethereum`), the literal `defi` for all chains, or a chain family (`EVM`, `SOLANA`, ...). Omit it to sync every connected exchange.
 
 ```bash
-# Sync all data from an exchange
-cryptact exchange sync --exchange binance
+# Sync every connected exchange
+cryptact exchange sync
+
+# Sync all data from one exchange
+cryptact exchange sync --exchange-id binance
 
 # Sync only a specific data type
-cryptact exchange sync --exchange binance --endpoint trades
+cryptact exchange sync --exchange-id binance --endpoint trades
 ```
 
 ### `exchange sync-status`
@@ -383,10 +412,10 @@ cryptact exchange sync-status
 
 ### `exchange sync-cancel`
 
-Cancel an ongoing import job.
+Cancel ongoing import jobs. `--filters` is a required JSON array of `{"exchange", "subAccount"?, "endpoint"?}` — use `"defi"` as the exchange for blockchain sync jobs.
 
 ```bash
-cryptact exchange sync-cancel --exchange binance
+cryptact exchange sync-cancel --filters '[{"exchange":"binance"}]'
 ```
 
 ### `exchange processing-status`
@@ -418,7 +447,7 @@ cryptact exchange file-history
 View details about a specific uploaded file.
 
 ```bash
-cryptact exchange file-details <fileId>
+cryptact exchange file-details --file-id 123
 ```
 
 ### `exchange file-upload`
@@ -440,9 +469,10 @@ cryptact exchange file-upload ./trades.csv \
 
 | Option                    | Description                                |
 | ------------------------- | ------------------------------------------ |
-| `--exchange-file-id <id>` | File format identifier (e.g., User.Custom) |
+| `--exchange-file-id <id>` | File format identifier, required (see: `cryptact reference show exchange-file-id`) |
 | `--timezone <tz>`         | Timezone for timestamps in the file        |
-| `--password <pwd>`        | Password if the file is encrypted          |
+| `--sub-id <subId>`        | Sub ID                                     |
+| `--password <password>`   | Password if the file is encrypted          |
 
 ---
 
@@ -482,7 +512,7 @@ Add the same wallet address to multiple blockchains at once.
 
 ```bash
 cryptact wallet add-multi \
-  --chains ethereum,polygon,arbitrum \
+  --chains '["ethereum","polygon","arbitrum"]' \
   --address 0x742d35Cc6634C0532925a3b844Bc9e7595f...
 ```
 
@@ -499,34 +529,33 @@ cryptact wallet update \
 
 ### `wallet delete`
 
-Remove a wallet address.
+Remove a wallet address. Destructive: requires `--execute`.
 
 ```bash
-cryptact wallet delete --chain ethereum --address 0x742d35...
+cryptact wallet delete --chain ethereum --address 0x742d35... --execute
 ```
 
-### `wallet sync`
+### `wallet delete-all`
 
-Start importing transactions from a wallet.
+Remove **all** DeFi wallet addresses from the ledger. Destructive: requires `--execute`.
 
 ```bash
-cryptact wallet sync --exchange ethereum
+cryptact wallet delete-all --execute
 ```
 
-### `wallet sync-status`
+### Syncing wallets
 
-Check the status of wallet import jobs.
-
-```bash
-cryptact wallet sync-status
-```
-
-### `wallet sync-cancel`
-
-Cancel an ongoing wallet import.
+Wallet sync runs through the `exchange` group — pass the chain (or `defi` for all chains) as the exchange ID:
 
 ```bash
-cryptact wallet sync-cancel --exchange ethereum
+# Start importing transactions from your Ethereum wallets
+cryptact exchange sync --exchange-id ethereum
+
+# Check the status of import jobs
+cryptact exchange sync-status
+
+# Cancel ongoing blockchain imports
+cryptact exchange sync-cancel --filters '[{"exchange":"defi"}]'
 ```
 
 ---
@@ -540,7 +569,7 @@ View your current holdings and historical performance.
 Display your current portfolio holdings.
 
 ```bash
-# Show portfolio in your default currency
+# Show portfolio in the ledger's own currency (--reporting-ccy omitted)
 cryptact portfolio show
 
 # Show portfolio in USD
@@ -549,37 +578,34 @@ cryptact portfolio show --reporting-ccy USD
 
 ### `portfolio history`
 
-View how your portfolio changed over time.
+View how your portfolio changed over time. The request schema is a union of shapes, so the payload is passed as a single required `--body <json>`.
 
 ```bash
-# Detailed breakdown
-cryptact portfolio history detailed
+# Detailed breakdown of holdings at each point
+cryptact portfolio history --body '{"aggregateType":"detailed"}'
 
-# Profit/loss over time
-cryptact portfolio history detailed-pnl
+# Profit/loss over time, within a range (Unix seconds)
+cryptact portfolio history --body '{"aggregateType":"detailed-pnl","from":1704067200,"to":1735689600}'
 
-# Global P&L summary
-cryptact portfolio history global-pnl
-
-# With date range (Unix timestamps)
-cryptact portfolio history detailed --from 1704067200000 --to 1735689600000
+# Overall profit/loss summary
+cryptact portfolio history --body '{"aggregateType":"global-pnl"}'
 ```
 
-**History types:**
+**Aggregate types (`aggregateType`):**
 
 - `detailed` — Full breakdown of holdings at each point
 - `detailed-pnl` — Profit/loss details over time
 - `global-pnl` — Overall profit/loss summary
+- `global` — Single-asset history; additionally requires `instrumentId`, `from`, `to`
 
-### `portfolio coin-history`
+### Single-asset history
 
-View the history of a specific cryptocurrency.
+`portfolio history` takes the whole payload as JSON (the route's request schema is a union of
+aggregate shapes), so a single-asset query passes `aggregateType: "global"` with the instrument and
+range. `from`/`to` are Unix timestamps in seconds.
 
 ```bash
-cryptact portfolio coin-history \
-  --coin BTC \
-  --from 1704067200000 \
-  --to 1735689600
+cryptact portfolio history --body '{"aggregateType":"global","instrumentId":"BTC","from":1704067200,"to":1735689600}'
 ```
 
 ---
@@ -590,42 +616,51 @@ Manage transactions from decentralized finance protocols.
 
 ### `defi search`
 
-Search your DeFi transactions.
+Search your DeFi transactions across the ledger. Pass `--limit` — when omitted it reaches the API as 0 and returns no transactions (use `0` deliberately to read the total count alone).
 
 ```bash
-# Search on Ethereum
-cryptact defi search --chains ethereum
+# Search the EVM family (the default)
+cryptact defi search --limit 20
 
-# Search multiple chains
-cryptact defi search --chains ethereum,polygon
+# Search specific chains (UPPERCASE names, with their family)
+cryptact defi search --chain-family EVM --chains '["ETHEREUM","POLYGON"]' --limit 20
 
-# Filter by date
-cryptact defi search --chains ethereum \
-  --start-time 2024-01-01T00:00:00Z \
-  --end-time 2024-12-31T23:59:59Z
+# Unclassified transactions needing review
+cryptact defi search --quick-filter CONFIRM --limit 20
+
+# Filter by date (epoch milliseconds, as strings)
+cryptact defi search --limit 20 \
+  --start-time 1704067200000 \
+  --end-time 1735689599000
 ```
 
 **Filter options:**
 
-| Option                | Description                                    |
-| --------------------- | ---------------------------------------------- |
-| `--chains <chains>`   | Comma-separated blockchain names (required)    |
-| `--start-time <time>` | Start time (ISO 8601 format)                   |
-| `--end-time <time>`   | End time (ISO 8601 format)                     |
-| `--addresses <addrs>` | Filter by wallet addresses                     |
-| `--services <svcs>`   | Filter by DeFi protocols (uniswap, aave, etc.) |
-| `--limit <n>`         | Maximum results                                |
-| `--page <n>`          | Page number (starts at 0)                      |
+| Option                            | Description                                    |
+| --------------------------------- | ---------------------------------------------- |
+| `--chains <json>`                 | JSON array of UPPERCASE chain names, e.g. `'["ETHEREUM"]'` (see: `cryptact reference show chain`). Omit to search every chain in the family |
+| `--chain-family <chain-family>`   | `EVM`, `SOLANA`, `COSMOS`, `BITCOIN`, `CARDANO`, or `SUI`. Required in practice whenever `--chains` is set; omit both to search EVM |
+| `--addresses <json>`              | JSON array of your own wallet addresses        |
+| `--services <json>`               | JSON array of contract service names           |
+| `--action-detail <json>`          | JSON array of effective action details (see: `cryptact reference show action-detail`) |
+| `--asset-hashes <json>`           | JSON array of asset identifiers (contract address on EVM, mint on Solana, ...) |
+| `--methods <json>`                | JSON array of method IDs (hex). EVM only       |
+| `--quick-filter <quick-filter>`   | Preset bucket, e.g. `CONFIRM` (unclassified) or `IDENTIFIED_ALL` (classified) |
+| `--start-time <start-time>`       | Start time (epoch milliseconds, as a string)   |
+| `--end-time <end-time>`           | End time (epoch milliseconds, as a string)     |
+| `--sort-order <sort-order>`       | Sort by timestamp: `ASC` (default) or `DESC`   |
+| `--limit <n>`                     | Page size (omitted means 0 — no results)       |
+| `--page <n>`                      | Page number (1-based)                          |
 
 ### `defi edit`
 
-Correct how a DeFi transaction is classified.
+Correct how DeFi transactions are classified. `--transactions` is a JSON array of `[chain, txHash]` pairs (UPPERCASE chain names). `--action` is required; `--transfer-type` takes `BONUS`, `GIVE`, `PAY`, `RECEIVE`, `SELF`, or `LOSS` for `TRANSFER` actions and defaults to `null` otherwise. `--action null` clears an existing manual edit.
 
 ```bash
 cryptact defi edit \
-  --chain ethereum \
-  --tx-hash 0xabc123... \
-  --action SWAP
+  --transactions '[["ETHEREUM","0xabc123..."]]' \
+  --action SWAP \
+  --transfer-type null
 ```
 
 **Action types:**
@@ -641,47 +676,48 @@ cryptact defi edit \
 
 ### `defi delete-edit`
 
-Remove a manual classification you made.
+Remove manual classifications you made. Destructive: requires `--execute`.
 
 ```bash
-cryptact defi delete-edit --chain ethereum --tx-hash 0xabc123...
+cryptact defi delete-edit --transactions '[["ETHEREUM","0xabc123..."]]' --execute
 ```
 
 ### `defi edits`
 
-List all manual edits you've made to DeFi transactions.
+List all manual edits you've made to DeFi transactions. `--chains` is a required JSON array of UPPERCASE chain names.
 
 ```bash
-cryptact defi edits --chains ethereum,polygon
+cryptact defi edits --chains '["ETHEREUM","POLYGON"]'
 ```
 
 ### `defi accept-all`
 
-Accept all suggested classifications at once.
+Accept all suggested classifications at once. Destructive: requires `--execute`.
 
 ```bash
-cryptact defi accept-all
+cryptact defi accept-all --execute
 
-# Accept only for a specific time period
+# Accept only for a specific time period (epoch milliseconds)
 cryptact defi accept-all \
-  --start-time 2024-01-01T00:00:00Z \
-  --end-time 2024-06-30T23:59:59Z
+  --start-time 1704067200000 \
+  --end-time 1719791999000 \
+  --execute
 ```
 
 ### `defi mark-risky`
 
-Mark unclassified transactions as risky (for review).
+Mark unclassified transactions as risky, assigning them an action (e.g. `FEEONLY`, `BONUS`, `PAY`). Destructive: requires `--execute`.
 
 ```bash
-cryptact defi mark-risky --action SWAP
+cryptact defi mark-risky --action FEEONLY --execute
 ```
 
 ### `defi mark-transfers-self`
 
-Mark unclassified transfers as transfers between your own wallets.
+Mark unclassified transfers as transfers between your own wallets. Destructive: requires `--execute`.
 
 ```bash
-cryptact defi mark-transfers-self
+cryptact defi mark-transfers-self --execute
 ```
 
 ### `defi stats`
@@ -691,8 +727,8 @@ View statistics about your DeFi activity.
 ```bash
 cryptact defi stats
 
-# Stats for a specific period
-cryptact defi stats --start-time 2024-01-01T00:00:00Z
+# Stats from a start time (epoch milliseconds)
+cryptact defi stats --start-time 1704067200000
 ```
 
 ---
@@ -839,4 +875,48 @@ View your current email subscription preferences.
 
 ```bash
 cryptact mailing-list show
+```
+
+#### `mailing-list subscribe`
+
+Update your email subscription preferences. Each category is a `--subscriptions.*` flag.
+
+All four categories are required — send the complete object. Read the current values with
+`cryptact mailing-list show --json` first; passing a subset returns 400.
+
+```bash
+cryptact mailing-list subscribe \
+  --subscriptions.mandatory true --subscriptions.announcements true \
+  --subscriptions.marketing false --subscriptions.transactional true
+```
+
+| Option                                    | Description                          |
+| ----------------------------------------- | ------------------------------------ |
+| `--subscriptions.mandatory <true\|false>`  | Mandatory service mail               |
+| `--subscriptions.announcements <true\|false>` | Product announcements             |
+| `--subscriptions.marketing <true\|false>` | Marketing mail                       |
+| `--subscriptions.transactional <true\|false>` | Transactional mail               |
+
+---
+
+## Enum References (`reference`)
+
+Discover the valid values for enum-typed flags. Option help text points here
+(e.g. `see: cryptact reference show timezone`).
+
+### `reference list`
+
+List every enum reference name known to the CLI.
+
+```bash
+cryptact reference list
+```
+
+### `reference show`
+
+Print every valid value for a named enum reference.
+
+```bash
+cryptact reference show timezone
+cryptact reference show cost-basis-method
 ```

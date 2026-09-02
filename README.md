@@ -14,7 +14,7 @@
 - **175+ exchanges and blockchains** — Binance, Coinbase, Kraken, Bybit, and [many more](https://grid.cryptact.com/exchanges).
 - **27,000+** cryptocurrencies and **200+** fiat pairs [supported](https://grid.cryptact.com/coins).
 - **DeFi wallet tracking** — Ethereum, Polygon, Arbitrum, and other EVM chains
-- **Flexible cost basis** — FIFO, LIFO, HIFO, Average Cost, Periodic Average
+- **Flexible cost basis** — FIFO, LIFO, HIFO, Average Cost, Periodic Average, Monthly Periodic Average
 - **Tax reports** — generate and download reports for your jurisdiction
 - **JSON output** — pipe `--json` into `jq`, scripts, or your own tooling
 - **Agent-friendly** — structured CLI designed for AI agents and automation
@@ -70,22 +70,24 @@ cryptact exchange key-add \
   --exchange binance \
   --public-key "your-key" \
   --private-key "your-secret" \
-  --endpoints '[{"endpoint":"trades"}]'
+  --passphrase "" \
+  --sub-account "" \
+  --endpoints '[{"endpoint":"trades","isFromFiles":false}]'
 
 # Sync and reprocess
-cryptact exchange sync --exchange binance
-cryptact ledger reprocess
+cryptact exchange sync --exchange-id binance
+cryptact ledger reprocess --execute
 ```
 
 ### Import DeFi wallet transactions
 
 ```bash
-# Add wallet and sync
+# Add wallet and sync (wallet sync runs through the exchange group)
 cryptact wallet add --chain ethereum --address 0x742d35Cc...
-cryptact wallet sync --exchange ethereum
+cryptact exchange sync --exchange-id ethereum
 
 # Review DeFi classifications
-cryptact defi search --chains ethereum
+cryptact defi search --chains '["ETHEREUM"]' --chain-family EVM --limit 20
 ```
 
 ### Generate a tax report
@@ -100,15 +102,15 @@ cryptact ledger download --year 2025
 
 ```bash
 # Get raw JSON for any command
-cryptact portfolio show --json
+cryptact portfolio show --reporting-ccy JPY --json
 
 # Pipe into jq
-cryptact transaction search --from 2025-01-01 --to 2025-12-31 --json \
-  | jq '.[] | select(.action == "SELL")'
+cryptact transaction search --filter.from 2025-01-01 --filter.to 2025-12-31 --json \
+  | jq '.results[] | select(.act == "SELL")'
 
 # Check ledger status in a script
-STATUS=$(cryptact ledger status --json | jq -r '.status')
-if [ "$STATUS" = "idle" ]; then
+STATUS=$(cryptact ledger status --json | jq -r '.processStatus.state')
+if [ "$STATUS" = "DONE" ]; then
   cryptact ledger download --year 2025
 fi
 ```
@@ -146,7 +148,10 @@ For the full command reference, see [docs/commands.md](docs/commands.md).
 ```bash
 cryptact auth login
 cryptact ledger show
-cryptact ledger update --reporting-ccy USD --cost-basis-method FIFO
+
+# `ledger update` requires the complete settings object: read, edit, send back
+cryptact ledger show --json | jq '.ledger | .reportingCcy = "USD" | .costBasisMethod = "FIFO"' > ledger.json
+cryptact ledger update --ledger "$(cat ledger.json)"
 ```
 
 ### Upload a CSV file
@@ -161,7 +166,7 @@ cryptact exchange file-upload ./trades.csv \
 
 ```bash
 cryptact wallet add-multi \
-  --chains ethereum,polygon,arbitrum \
+  --chains '["ethereum","polygon","arbitrum"]' \
   --address 0x742d35Cc...
 ```
 

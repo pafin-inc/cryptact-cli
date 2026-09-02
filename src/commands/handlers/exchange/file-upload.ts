@@ -1,9 +1,16 @@
 import { Command } from "commander";
 import * as fs from "fs";
 import * as path from "path";
-import type { ExchangeFileUploadOptions } from "../../../cli-spec";
 import { apiPost } from "../../../lib/api-client";
+import { ExitCode } from "../../../lib/errors";
 import { error, isJsonMode, printJson, success } from "../../../lib/output";
+
+interface FileUploadOptions {
+  exchangeFileId?: string;
+  subId?: string;
+  password?: string;
+  timezone?: string;
+}
 
 export async function handler({
   ledgerId,
@@ -12,14 +19,15 @@ export async function handler({
   cmd
 }: {
   ledgerId: string;
-  options: ExchangeFileUploadOptions;
+  options: FileUploadOptions;
   args: { file: string };
   cmd: Command;
 }): Promise<void> {
   const filePath = path.resolve(args.file);
   if (!fs.existsSync(filePath)) {
     error(`File not found: ${filePath}`);
-    process.exit(1);
+    process.exitCode = ExitCode.BAD_PARAMS;
+    return;
   }
 
   const fileBuffer = fs.readFileSync(filePath);
@@ -48,7 +56,8 @@ export async function handler({
   const presigned = preUpload.results?.[0];
   if (!presigned) {
     error("Failed to get presigned upload URL.");
-    process.exit(1);
+    process.exitCode = ExitCode.GENERAL;
+    return;
   }
 
   // Step 2: Upload to S3 via multipart form
@@ -62,7 +71,8 @@ export async function handler({
   if (!s3Res.ok) {
     const text = await s3Res.text();
     error(`S3 upload failed (${s3Res.status}): ${text}`);
-    process.exit(1);
+    process.exitCode = ExitCode.NETWORK;
+    return;
   }
 
   // Step 3: Post-upload — notify backend

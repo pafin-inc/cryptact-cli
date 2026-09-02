@@ -1,2431 +1,126 @@
-// @generated — do not edit by hand.
+// @generated — route-driven CLI spec. Do not edit by hand.
 
 export interface OptionDef {
-  flags: string;
+  flag: string;
+  key: string;
   description: string;
   required?: boolean;
+  type: "string" | "number" | "boolean" | "json";
+  /** Name under which the full value list lives in enumRegistry. Set for every enum field. */
+  enumRef?: string;
+  /** For JSON flags (arrays, nested objects), enum names reachable inside. */
+  nestedEnumRefs?: string[];
+  /** Example value from `.meta({ example })`, shown in help and completions. */
+  example?: string;
+  /** CLI-only flag: surfaced to runtime hooks via `ctx.locals`, never sent to the API. */
+  local?: true;
+  /** Schema-required but nullable: dispatcher sends `null` when the flag is absent. */
+  sendNull?: true;
+  /** Nullable in the schema: the literal value `null` on the flag is sent as JSON null. */
+  nullable?: true;
+  /** Schema-required nested object: dispatcher materialises `{}` when no child flag is set. */
+  ensureObject?: true;
+  /** Schema-required array: dispatcher sends `[]` ("no constraint") when the flag is absent. */
+  ensureArray?: true;
+  /** Dispatcher fills this with the caller's own organization when it is absent. */
+  fillOwnOrg?: true;
 }
 
 export interface ArgumentDef {
   name: string;
   description: string;
-  required?: boolean;
+  required: boolean;
+  /** Original `:param` name when the CLI-facing name was renamed via override. */
+  paramName?: string;
+  /** Nested request-schema field this positional also fills. */
+  bodyPath?: string;
 }
 
 export interface CommandDef {
   name: string;
+  groupKey: string;
+  routeKey: string;
+  method: string;
+  path: string;
+  type: "query" | "mutation";
+  paged?: true;
+  needsLedger?: true;
+  /** Dot-path the resolved ledgerId is written to when it isn't the top-level `ledgerId` key. */
+  ledgerIdPath?: string;
+  /** Requires --execute (or CRYPTACT_CLI_NO_CONFIRM=1) to run. */
+  destructive?: true;
   description: string;
-  handler: string;
-  needsLedger?: boolean;
-  options?: OptionDef[];
+  aliases?: string[];
+  enterprise?: true;
+  hidden?: true;
   arguments?: ArgumentDef[];
+  options?: OptionDef[];
 }
 
 export interface GroupDef {
   name: string;
-  description: string;
+  description?: string;
+  aliases?: string[];
+  enterprise?: true;
+  hidden?: true;
   commands: CommandDef[];
 }
 
-// ---------------------------------------------------------------------------
-// Constants (from @cryptact/dashboard-common)
-// ---------------------------------------------------------------------------
-
-/** Sentinel value for masked/hidden display values */
-export const Z3 = "000.000";
-
-// ---------------------------------------------------------------------------
-// Generated option interfaces
-// ---------------------------------------------------------------------------
-
-export interface AuthLoginOptions {
-  deviceCode?: boolean;
-}
-
-export interface LedgerReprocessOptions {
-  forceRebuild?: boolean;
-  from?: string;
-}
-
-export interface LedgerDownloadOptions {
-  year?: string;
-}
-
-export interface LedgerUpdateOptions {
-  reportingCcy?: string;
-  costBasisMethod?: string;
-  fxCostBasisMethod?: string;
-  timezone?: string;
-  fiscalYearEndMonth?: string;
-  defiTranslator?: string;
-  positionDecimalPlaces?: string;
-  allowMarginalFlip?: boolean;
-  marginalFlipThreshold?: string;
-  alwaysUseTtm?: boolean;
-  corporateM2mMethod?: string;
-  priceLookupFallbackToZero?: boolean;
-  sendFeeExpensed?: boolean;
-  adjustedCostBasisFromFy?: string;
-  importAssetMovements?: boolean;
-}
-
-export interface TransactionSearchOptions {
-  source?: string;
-  action?: string;
-  feeCurrency?: string;
-  pair?: string;
-  from?: string;
-  to?: string;
-  limit?: string;
-  hasError?: boolean;
-  offset?: string;
-  order?: string;
-}
-
-export interface TransactionShowOptions {
-  type?: string;
-}
-
-export interface TransactionEditOptions {
-  action?: string;
-  base?: string;
-  counter?: string;
-  feeCurrency?: string;
-  volume?: string;
-  price?: string;
-  fee?: string;
-  source?: string;
-  comment?: string;
-  timestamp?: string;
-  rc?: string;
-  realized?: string;
-}
-
-export interface TransactionExcludeOptions {
-  undo?: boolean;
-}
-
-export interface ExchangeEndpointsOptions {
-  exchange: string;
-}
-
-export interface ExchangeKeyAddOptions {
-  exchange: string;
-  publicKey: string;
-  privateKey: string;
-  passphrase?: string;
-  subAccount?: string;
-  endpoints: string;
-}
-
-export interface ExchangeKeyDeleteOptions {
-  exchange: string;
-  subAccount?: string;
-}
-
-export interface ExchangeKeyUpdateOptions {
-  exchange: string;
-  subAccount: string;
-  endpoints: string;
-}
-
-export interface ExchangeSyncOptions {
-  exchange: string;
-  subAccount?: string;
-  endpoint?: string;
-}
-
-export interface ExchangeSyncCancelOptions {
-  exchange: string;
-  subAccount?: string;
-  endpoint?: string;
-}
-
-export interface ExchangeFileHistoryOptions {
-  offset?: string;
-}
-
-export interface ExchangeFileUploadOptions {
-  exchangeFileId: string;
-  timezone?: string;
-  subId?: string;
-  password?: string;
-}
-
-export interface WalletAddOptions {
-  chain: string;
-  address: string;
-  memo?: string;
-}
-
-export interface WalletDeleteOptions {
-  chain: string;
-  address: string;
-}
-
-export interface WalletUpdateOptions {
-  chain: string;
-  address: string;
-  memo?: string;
-}
-
-export interface WalletAddMultiOptions {
-  chains: string;
-  address: string;
-  memo?: string;
-}
-
-export interface WalletSyncOptions {
-  exchange: string;
-  subAccount?: string;
-  endpoint?: string;
-}
-
-export interface WalletSyncCancelOptions {
-  exchange: string;
-  subAccount?: string;
-  endpoint?: string;
-}
-
-export interface PortfolioShowOptions {
-  reportingCcy?: string;
-}
-
-export interface PortfolioHistoryOptions {
-  from?: string;
-  to?: string;
-}
-
-export interface PortfolioCoinHistoryOptions {
-  coin: string;
-  from: string;
-  to: string;
-}
-
-export interface BillingInvoicesOptions {
-  limit?: string;
-  endingBefore?: string;
-  startingAfter?: string;
-}
-
-export interface SettingsUpdateOptions {
-  language: string;
-}
-
-export interface DefiSearchOptions {
-  chains: string;
-  quickFilter?: string;
-  limit?: string;
-  startTime?: string;
-  endTime?: string;
-  sortOrder?: string;
-  chainFamily?: string;
-  addresses?: string;
-  services?: string;
-  actionDetail?: string;
-  assetHashes?: string;
-  methods?: string;
-  page?: string;
-}
-
-export interface DefiEditOptions {
-  chain: string;
-  txHash: string;
-  action: string;
-  transferType?: string;
-}
-
-export interface DefiDeleteEditOptions {
-  chain: string;
-  txHash: string;
-}
-
-export interface DefiEditsOptions {
-  chains: string;
-}
-
-export interface DefiAcceptAllOptions {
-  startTime?: string;
-  endTime?: string;
-  chainFamily?: string;
-}
-
-export interface DefiMarkRiskyOptions {
-  action: string;
-  startTime?: string;
-  endTime?: string;
-  chainFamily?: string;
-}
-
-export interface DefiMarkTransfersSelfOptions {
-  startTime?: string;
-  chainFamily?: string;
-}
-
-export interface DefiStatsOptions {
-  startTime?: string;
-  chainFamily?: string;
-}
-
-export interface LiveViewPositionOptions {
-  reportingCcy: string;
-  snapshotTimestamp?: string;
-  exchanges: string;
-}
-
-// ---------------------------------------------------------------------------
-// Generated response types (from @cryptact/dashboard-common Receive types)
-// ---------------------------------------------------------------------------
-
-export interface ILedgerCostBasisOptions {
-  handleWashSales: boolean;
-  splitPlByStLt: boolean;
-}
-
-export interface ILedger {
-  ledgerId: string;
-  allowMarginalFlip: boolean;
-  alwaysUseTTM: boolean;
-  corporateMarkToMarketMethod: null | "reversal" | "cutoff";
-  costBasisMethod: "FIFO" | "LIFO" | "HIFO" | "Average Cost" | "Periodic Average";
-  costBasisOptions: ILedgerCostBasisOptions;
-  defiTranslator: "CONFIRM" | "DIFFERENTIAL";
-  fiscalYearEndMonth: 2 | 5 | 1 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 45;
-  fxCostBasisMethod: "FIFO" | "LIFO" | "HIFO" | "Average Cost" | "Periodic Average";
-  marginalFlipThreshold: number;
-  positionDecimalPlaces: number;
-  priceLookupFallbackToZero: boolean;
-  reportingCcy:
-    | "AUD"
-    | "BRL"
-    | "CAD"
-    | "CHF"
-    | "EUR"
-    | "GBP"
-    | "HKD"
-    | "INR"
-    | "JPY"
-    | "KRW"
-    | "NZD"
-    | "SGD"
-    | "TRY"
-    | "TWD"
-    | "USD";
-  sendFeeExpensed: boolean;
-  timezone: string;
-  useAdjustedCostBasisFromFiscalYear: null | number;
-  lockingFiscalYear: null | number;
-  onboardingStatus:
-    | null
-    | "ledger-settings"
-    | "starting-balance"
-    | "completed-assistant"
-    | "completed-balance";
-  resetUnlockedSnapshot: boolean;
-  hasRestrictedActionAccess: boolean;
-  importAssetMovements: boolean;
-}
-
-export interface LedgerShowResponse {
-  ledger: ILedger;
-}
-
-export interface CttError {
-  code: string;
-  name: "CttError";
-  params?: Record<string, string | number | false | true>;
-  message: string;
-  stack?: string;
-  cause?: unknown;
-}
-
-export interface IProcessStatus {
-  error: null | CttError;
-  ledgerId: string;
-  processId: null | number;
-  state:
-    | "PREPARING"
-    | "QUEUED_PROCESS"
-    | "QUEUED_UPLOAD"
-    | "RUNNING"
-    | "UPLOADING"
-    | "DOWNLOADING"
-    | "QUEUED_DOWNLOAD"
-    | "DONE"
-    | "ERROR"
-    | "TIMEOUT"
-    | "UNSTARTED";
-  ts: number;
-  lastUpdateTs: null | number;
-}
-
-export interface LedgerStatusResponse {
-  processStatus: IProcessStatus;
-}
-
-export interface LedgerReprocessResponse {
-  processStatus: IProcessStatus;
-}
-
-export interface LedgerDownloadPreviewResponseDownloadFile {
-  id:
-    | "cryptact-ledger"
-    | "cryptact-transactions"
-    | "cryptact-annual"
-    | "cryptact-exchange"
-    | "cryptact-summary"
-    | "cryptact-start-of-year"
-    | "cryptact-custom-import"
-    | "DeFi-CONFIRM-upload"
-    | "cryptact-kasou-todoke"
-    | "cryptact-annual-summary-[CA]"
-    | "cryptact-india-capital-gains-summary"
-    | "cryptact-india-derivatives-summary"
-    | "cryptact-annual-summary-[IN]"
-    | "defi-special-activity-report";
-  type: "pdf" | "csv" | "xlsx";
-  requiredForTaxReturnInCountry?: string;
-}
-
-export interface LedgerDownloadPreviewResponse {
-  downloadFiles: LedgerDownloadPreviewResponseDownloadFile[];
-}
-
-export interface LedgerDownloadResponse {
-  ledgerId: string;
-}
-
-export interface LedgerUpdateResponse {
-  ledger: ILedger;
-}
-
-export interface ITransactionCount {
-  generated: number;
-  grouped: number;
-  ungrouped: number;
-}
-
-export interface LTDInstrumentSummaryAsPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface CryptoInstrument {
-  instrumentId: string;
-  instrumentType: "crypto";
-}
-
-export interface DerivativeInstrument {
-  instrumentId: string;
-  instrumentType: "derivative";
-}
-
-export interface FiatInstrument {
-  instrumentId: string;
-  instrumentType: "fiat";
-}
-
-export interface UnsupportedInstrument {
-  instrumentId: string;
-  instrumentType: "unsupported";
-}
-
-export interface LTDInstrumentSummaryAs {
-  count: ITransactionCount;
-  pl: LTDInstrumentSummaryAsPl;
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  position: string;
-  weightedCost: string;
-  totalCorporatePL?: null | string;
-  totalCost: string;
-  totalRevenue: string;
-}
-
-export interface LedgerSummaryResponseSummaryByInstrumentTotalPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface LedgerSummaryResponseSummaryByInstrumentTotal {
-  pl: LedgerSummaryResponseSummaryByInstrumentTotalPl;
-  count: ITransactionCount;
-  totalCorporatePL?: null | string;
-}
-
-export interface LedgerSummaryResponseSummaryByInstrument {
-  summaryType: "ltd-instrument";
-  summaries: LTDInstrumentSummaryAs[];
-  total: LedgerSummaryResponseSummaryByInstrumentTotal;
-}
-
-export interface ExchangeSummaryAsPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface ExchangeSummaryAsExchangeId {
-  exchangeType: "listed";
-  exchangeId: string;
-}
-
-export interface ExchangeSummaryAs {
-  count: ITransactionCount;
-  pl: ExchangeSummaryAsPl;
-  exchangeId: ExchangeSummaryAsExchangeId;
-  totalCost: string;
-  totalRevenue: string;
-  fees: string;
-  valueTraded: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearExchangeTotalPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearExchangeTotal {
-  pl: LedgerSummaryResponseSummaryByYearExchangeTotalPl;
-}
-
-export interface LedgerSummaryResponseSummaryByYearExchange {
-  summaryType: "yearly-exchange";
-  summaries: ExchangeSummaryAs[];
-  customSummary?: ExchangeSummaryAs;
-  fiscalYear: number;
-  total: LedgerSummaryResponseSummaryByYearExchangeTotal;
-}
-
-export interface InstrumentSummaryAsPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface InstrumentSummaryAs {
-  count: ITransactionCount;
-  pl: InstrumentSummaryAsPl;
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  position: string;
-  price: null | string;
-  totalCorporatePL?: null | string;
-  totalCost: string;
-  totalRevenue: string;
-  unrealizedPL: null | string;
-  weightedCost: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearInstrumentTotalPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearInstrumentTotal {
-  pl: LedgerSummaryResponseSummaryByYearInstrumentTotalPl;
-  count: ITransactionCount;
-  totalCorporatePL?: null | string;
-  unrealizedPL?: null | string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearInstrument {
-  summaryType: "yearly-instrument";
-  summaries: InstrumentSummaryAs[];
-  fiscalYear: number;
-  total: LedgerSummaryResponseSummaryByYearInstrumentTotal;
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummaryLoanBorrowCounterparty {
-  name: string;
-  volume: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummaryLoanBorrow {
-  totalVolume: string;
-  counterparties: LedgerSummaryResponseSummaryByYearLoanSummaryLoanBorrowCounterparty[];
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummaryLoanLendCounterparty {
-  name: string;
-  volume: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummaryLoanLend {
-  totalVolume: string;
-  counterparties: LedgerSummaryResponseSummaryByYearLoanSummaryLoanLendCounterparty[];
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummaryLoan {
-  borrow: LedgerSummaryResponseSummaryByYearLoanSummaryLoanBorrow;
-  lend: LedgerSummaryResponseSummaryByYearLoanSummaryLoanLend;
-  netVolume: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoanSummary {
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  loan: LedgerSummaryResponseSummaryByYearLoanSummaryLoan;
-}
-
-export interface LedgerSummaryResponseSummaryByYearLoan {
-  fiscalYear: number;
-  summaryType: "yearly-loan";
-  summaries: LedgerSummaryResponseSummaryByYearLoanSummary[];
-}
-
-export interface LedgerSummaryResponseSummaryByYearBalanceSummaryBalance {
-  wallet: string;
-  balance: string;
-}
-
-export interface LedgerSummaryResponseSummaryByYearBalanceSummary {
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  balances: LedgerSummaryResponseSummaryByYearBalanceSummaryBalance[];
-}
-
-export interface LedgerSummaryResponseSummaryByYearBalance {
-  fiscalYear: number;
-  summaryType: "yearly-balance";
-  summaries: LedgerSummaryResponseSummaryByYearBalanceSummary[];
-}
-
-export interface LedgerSummaryResponseSummaryFeedbackCodes {
-  "error.bprc-exceeds-limit"?: number;
-  "error.cprc-exceeds-limit"?: number;
-  "error.fprc-exceeds-limit"?: number;
-  "error.counterparty-mismatch-recover"?: number;
-  "error.counterparty-mismatch-return"?: number;
-  "error.lend-exceeds-lendable"?: number;
-  "error.no-price-available"?: number;
-  "error.over-sell"?: number;
-  "error.price-lookup-on-fiat-transaction"?: number;
-  "error.return-exceeds-returnable"?: number;
-  "error.sell-exceeds-sellable"?: number;
-  "error.unsupported-base-ccy"?: number;
-  "error.unsupported-counter-ccy"?: number;
-  "error.unsupported-fee-ccy"?: number;
-  "error.firc-exceeds-limit"?: number;
-  "error.zero-volume-level-up-txn"?: number;
-  "error.level-up-with-no-position"?: number;
-  "error.over-fee"?: number;
-  "info.defi-modified-txn"?: number;
-  "info.flip-txn"?: number;
-  "info.modified-txn"?: number;
-  "info.pre-2021-tip-txn"?: number;
-  "info.wash-sale"?: number;
-  "info.defi-convert-txn"?: number;
-  "info.special-unsupported"?: number;
-  "info.electronic-payment-method-pnl"?: number;
-  "info.manually-excluded-txn"?: number;
-  "info.defi-excluded-txn"?: number;
-  "info.alt-fee-generated-txn"?: number;
-  "info.auto-generated-loan-fee"?: number;
-  "info.auto-generated-txn"?: number;
-  "info.send-fee-generated-txn"?: number;
-  "info.auto-generated-margin-fee"?: number;
-  "info.auto-generated-epm-fee"?: number;
-  "warning.high-fee-percentage"?: number;
-  "warning.marginal-close-adjustment"?: number;
-  "warning.marginal-lend-adjustment"?: number;
-  "warning.marginal-recover-close-adjustment"?: number;
-  "warning.marginal-return-close-adjustment"?: number;
-  "warning.price-lookup-fallback-to-zero"?: number;
-  "warning.transaction-flipped"?: number;
-  "warning.unknown-defi-coin"?: number;
-  "warning.zero-volume-txn"?: number;
-  "warning.adjusted-cost-basis-applied"?: number;
-  "warning.loss-with-non-zero-price"?: number;
-  "warning.legacy-sendfee-issue"?: number;
-  "warning.fee-rebate-close-adjustment"?: number;
-}
-
-export interface LedgerSummaryResponseSummary {
-  actions: string[];
-  byInstrument: LedgerSummaryResponseSummaryByInstrument;
-  byYearExchange: LedgerSummaryResponseSummaryByYearExchange[];
-  byYearInstrument: LedgerSummaryResponseSummaryByYearInstrument[];
-  byYearLoan: LedgerSummaryResponseSummaryByYearLoan[];
-  byYearBalance: LedgerSummaryResponseSummaryByYearBalance[];
-  feeCurrencies: string[];
-  feedbackCodes: LedgerSummaryResponseSummaryFeedbackCodes;
-  pairs: string[];
-  sources: string[];
-  transactionCount: ITransactionCount;
-}
-
-export interface LedgerSummaryResponse {
-  ledgerId: string;
-  summary: LedgerSummaryResponseSummary;
-}
-
-export interface TransactionSearchResponseFilterOrderBy {
-  column: "ts" | "processOrder";
-  order: "ASC" | "DESC";
-}
-
-export interface TransactionSearchResponseFilter {
-  action: string[];
-  feeCurrency: string[];
-  from: null | string;
-  ledgerId: null | string;
-  orderBy: TransactionSearchResponseFilterOrderBy[];
-  pair: string[];
-  source: string[];
-  to: null | string;
-  feedbackNumericCode?: number[];
-  fromProcessOrder?: null | number;
-  hasError?: boolean;
-  limit?: null | number;
-  toProcessOrder?: null | number;
-}
-
-export interface ExtendedTransactionFeedbackParams {
-  pair: string;
-}
-
-export interface ExtendedTransactionFeedback {
-  params: ExtendedTransactionFeedbackParams;
-  code: "error.bprc-exceeds-limit";
-}
-
-export interface BaseTransactionFeedback {
-  code: "error.firc-exceeds-limit";
-  params?: Record<string, unknown>;
-}
-
-export interface ITransactionAsPl {
-  total: string;
-  wash: string;
-  short: string;
-  long: string;
-}
-
-export interface ITransactionAs {
-  act: string;
-  bPAT: string;
-  bPRC: string;
-  bWCT: string;
-  bc: string;
-  cPAT: string;
-  cPRC: string;
-  cWCT: string;
-  cc: string;
-  comment: null | string;
-  creationTimestamp: null | string;
-  dd: null | string;
-  dt: null | "fx" | "future" | "bitmex" | "margin" | "option" | "psd-future" | "cfd";
-  efi: string;
-  externalTxnId: null | string;
-  fIRC: string;
-  fPRC: string;
-  fPct: string;
-  fc: string;
-  fee: string;
-  feedback: (ExtendedTransactionFeedback | BaseTransactionFeedback)[];
-  feedbackNumericCode: null | number[];
-  pair: string;
-  parent: null | string;
-  pl: ITransactionAsPl;
-  prc: string;
-  processOrder: number;
-  src: string;
-  subId: null | string;
-  ts: string;
-  ungroupedCount: number;
-  uuid: string;
-  vol: string;
-}
-
-export interface TransactionSearchResponse {
-  filter: TransactionSearchResponseFilter;
-  offset?: number;
-  results: ITransactionAs[];
-  total: number;
-}
-
-export interface TransactionShowResponse {
-  ledgerId: string;
-  transactionType: "unprocessed" | "processed";
-  detail: ITransactionAs;
-  transactionId: string;
-}
-
-export interface TransactionEditResponse {
-  ledgerId: string;
-  transactionId: string;
-}
-
-export interface TransactionDeleteResponseDeletedCount {
-  generated: number;
-  grouped: number;
-  ungrouped: number;
-}
-
-export interface TransactionDeleteResponse {
-  deletedCount: TransactionDeleteResponseDeletedCount;
-}
-
-export interface TransactionExcludeResponse {
-  excludeOrUnexclude: "exclude" | "unexclude";
-  ledgerId: string;
-  transactionId: string;
-}
-
-export interface TransactionSummaryResponseSummary {
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  chg: string;
-  position: string;
-}
-
-export interface TransactionSummaryResponse {
-  ledgerId: string;
-  transactionId: string;
-  summaryType: "transaction";
-  summaries: TransactionSummaryResponseSummary[];
-}
-
-export interface TransactionLoanSummaryResponseLoanLoans {
-  borrowed: string;
-  lent: string;
-}
-
-export interface TransactionLoanSummaryResponseLoan {
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  loans: TransactionLoanSummaryResponseLoanLoans;
-}
-
-export interface TransactionLoanSummaryResponse {
-  ledgerId: string;
-  transactionId: string;
-  loans: TransactionLoanSummaryResponseLoan[];
-}
-
-export interface TransactionOpenCloseResponseOpenClose {
-  txnUuid: string;
-  ccy: string;
-  ts: string;
-  side: "BUY/CLOSE" | "BUY/OPEN" | "BUY/OPEN/WASH" | "SELL/CLOSE" | "SELL/OPEN" | "SELL/OPEN/WASH";
-  vol: string;
-  prc: string;
-  fee: string;
-  cb: string;
-}
-
-export interface TransactionOpenCloseResponse {
-  ledgerId: string;
-  openClose: TransactionOpenCloseResponseOpenClose[];
-  transactionId: string;
-}
-
-export interface TransactionBalanceSummaryResponseBalanceChange {
-  type: "fee" | "transfer" | "trade";
-  instrument: CryptoInstrument | DerivativeInstrument | FiatInstrument | UnsupportedInstrument;
-  wallet: string;
-  change: string;
-  changeInRc: string;
-  balance: string;
-}
-
-export interface TransactionBalanceSummaryResponseBalance {
-  summaryType: "balance";
-  changes: TransactionBalanceSummaryResponseBalanceChange[];
-}
-
-export interface TransactionBalanceSummaryResponse {
-  ledgerId: string;
-  transactionId: string;
-  balance: TransactionBalanceSummaryResponseBalance;
-}
-
-export interface ExchangeKeysResponseKeyInfoEndpoint {
-  endpoint: string;
-  startTimestampMs: number;
-  isFromFiles: boolean;
-}
-
-export interface ExchangeKeysResponseKeyInfo {
-  createdAt: number;
-  endpoints: ExchangeKeysResponseKeyInfoEndpoint[];
-  exchange: string;
-  pubKey: string;
-  subAccount: string;
-  updatedAt: number;
-}
-
-export interface ExchangeKeysResponse {
-  keyInfos?: null | ExchangeKeysResponseKeyInfo[];
-}
-
-export interface ExchangeEndpointsResponseEndpoint {
-  endpoint: string;
-  addedAt: number;
-}
-
-export interface ExchangeEndpointsResponse {
-  endpoints: ExchangeEndpointsResponseEndpoint[];
-}
-
-export interface ExchangeKeyUpdateResponseEndpoint {
-  endpoint: string;
-  startTimestampMs: number;
-  isFromFiles: boolean;
-}
-
-export interface ExchangeKeyUpdateResponse {
-  endpoints: ExchangeKeyUpdateResponseEndpoint[];
-}
-
-export interface WalletSyncStatusResponseStatus {
-  details: string;
-  endpoint: string;
-  errorCode:
-    | 0
-    | 1
-    | 2
-    | 3
-    | 4
-    | 100
-    | 101
-    | 102
-    | 200
-    | 201
-    | 202
-    | 203
-    | 204
-    | 205
-    | 206
-    | 207
-    | 208
-    | 300
-    | 301
-    | 302
-    | 303
-    | 400
-    | 401
-    | 402
-    | 403
-    | 404
-    | 405
-    | 900;
-  exchange: string;
-  status: "DONE" | "ERROR" | "CANCELLED" | "NOT_SYNCED" | "PROCESSING" | "STARTING";
-  subAccount: string;
-  timestamp: number;
-  jobBatchId?: number;
-  progress?: number;
-}
-
-export interface WalletSyncStatusResponse {
-  statuses?: null | WalletSyncStatusResponseStatus[];
-}
-
-export interface ExchangeProcessingStatusResponse {
-  processingStatus: "good" | "busy" | "degraded";
-}
-
-export interface ExchangeFileHistoryResponseFilter {
-  fileId?: number;
-  ledgerId?: string;
-  exchangeFileIds?: string[];
-  state?: "DONE" | "ERROR" | "QUEUED" | "STARTED";
-}
-
-export interface ExchangeFileDetails {
-  appendSkipCount: number;
-  ignoreCount: number;
-  appendSkipType?: "efi" | "lock";
-  appendSkipTs?: string;
-  confirmCount?: number;
-  transactionCountByYear: Record<string, ITransactionCount>;
-}
-
-export interface IExchangeFileHistory {
-  fileId: number;
-  error: null | CttError;
-  exchangeFileId: string;
-  fileKey: string;
-  fileName: string;
-  fileSize: number;
-  ledgerId: string;
-  state: "DONE" | "ERROR" | "QUEUED" | "STARTED";
-  subId: null | string;
-  timestamp: string;
-  details?: ExchangeFileDetails;
-}
-
-export interface ExchangeFileHistoryResponse {
-  filter: ExchangeFileHistoryResponseFilter;
-  offset?: number;
-  results: IExchangeFileHistory[];
-  total: number;
-}
-
-export interface ExchangeFileDetailsResponse {
-  fileId: number;
-  error: null | CttError;
-  exchangeFileId: string;
-  fileKey: string;
-  fileName: string;
-  fileSize: number;
-  ledgerId: string;
-  state: "DONE" | "ERROR" | "QUEUED" | "STARTED";
-  subId: null | string;
-  timestamp: string;
-  details?: ExchangeFileDetails;
-}
-
-export interface WalletListResponseAddress {
-  address: string;
-  chain: string;
-  createdAt: number;
-  updatedAt: number;
-  memo?: string;
-}
-
-export interface WalletListResponse {
-  addresses?: null | WalletListResponseAddress[];
-}
-
-export interface PortfolioShowResponseDetailCoinChange {
-  daily: null | number;
-  hourly: null | number;
-  weekly: null | number;
-}
-
-export interface PortfolioShowResponseDetailCoin {
-  averageCost: string;
-  change: PortfolioShowResponseDetailCoinChange;
-  coin: string;
-  costBasisMethod: "FIFO" | "LIFO" | "HIFO" | "Average Cost" | "Periodic Average";
-  mv: string;
-  position: string;
-  price: null | string;
-  reportingCcy:
-    | "AUD"
-    | "BRL"
-    | "CAD"
-    | "CHF"
-    | "EUR"
-    | "GBP"
-    | "HKD"
-    | "INR"
-    | "JPY"
-    | "KRW"
-    | "NZD"
-    | "SGD"
-    | "TRY"
-    | "TWD"
-    | "USD";
-  unrealizedGains: string;
-  updatedTimestamp: null | string;
-}
-
-export interface PortfolioShowResponseDetailNft {
-  defiToken: string;
-}
-
-export interface PortfolioShowResponseDetailByEx {
-  exchange: string;
-  feePct: number;
-  fees: string;
-  reportingCcy:
-    | "AUD"
-    | "BRL"
-    | "CAD"
-    | "CHF"
-    | "EUR"
-    | "GBP"
-    | "HKD"
-    | "INR"
-    | "JPY"
-    | "KRW"
-    | "NZD"
-    | "SGD"
-    | "TRY"
-    | "TWD"
-    | "USD";
-  valueTraded: string;
-}
-
-export interface PortfolioShowResponseDetail {
-  coins: PortfolioShowResponseDetailCoin[];
-  nfts: PortfolioShowResponseDetailNft[];
-  byEx: PortfolioShowResponseDetailByEx[];
-}
-
-export interface PortfolioShowResponse {
-  ledgerId: string;
-  reportingCcy:
-    | "AUD"
-    | "BRL"
-    | "CAD"
-    | "CHF"
-    | "EUR"
-    | "GBP"
-    | "HKD"
-    | "INR"
-    | "JPY"
-    | "KRW"
-    | "NZD"
-    | "SGD"
-    | "TRY"
-    | "TWD"
-    | "USD";
-  detail: PortfolioShowResponseDetail;
-}
-
-export interface IDetailedAggregate {
-  ledgerId: number;
-  instrumentId: string;
-  source: string;
-  action: string;
-  hour: string;
-  increased: string;
-  decreased: string;
-}
-
-export interface IGlobalPnlAggregate {
-  ledgerId: number;
-  hour: string;
-  pnl: string;
-}
-
-export interface IDetailedPnlAggregate {
-  ledgerId: number;
-  source: string;
-  action: string;
-  hour: string;
-  pnl: string;
-}
-
-export interface PortfolioHistoryResponse {
-  status: "RUNNING" | "DONE" | "ERROR" | "QUEUED" | "INITIAL" | "RUNNING_INVALIDATED";
-  aggregates: IDetailedAggregate[] | IGlobalPnlAggregate[] | IDetailedPnlAggregate[];
-  previousAggregate?: undefined;
-}
-
-export interface IGlobalAggregate {
-  ledgerId: number;
-  instrumentId: string;
-  hour: string;
-  position: string;
-  increased: string;
-  decreased: string;
-}
-
-export interface PortfolioCoinHistoryResponse {
-  status: "RUNNING" | "DONE" | "ERROR" | "QUEUED" | "INITIAL" | "RUNNING_INVALIDATED";
-  aggregates: IGlobalAggregate[];
-  previousAggregate?: null | IGlobalAggregate;
-}
-
-export interface StripeInvoiceLineItemPeriod {
-  end: number;
-  start: number;
-}
-
-export interface StripeInvoiceLineItem {
-  amount: number;
-  description: null | string;
-  period: StripeInvoiceLineItemPeriod;
-  tier:
-    | null
-    | "LedgerPlanFree"
-    | "LedgerPlanEntry"
-    | "LedgerPlanLight"
-    | "LedgerPlanStandard"
-    | "LedgerPlanAdvanced"
-    | "LedgerPlanPremium"
-    | "LedgerPlanVip"
-    | "LedgerPlanEnterprise"
-    | "LedgerPlanFreeInternational"
-    | "LedgerPlanBasic"
-    | "LedgerPlanPrime"
-    | "LedgerPlanPro"
-    | "LedgerPlanProPlus"
-    | "LedgerPlanProUnlimited"
-    | "LedgerPlanDataRetention"
-    | "LedgerPlanIndiaExclusive"
-    | "LedgerPlanTrial"
-    | "LedgerPlanPremium2M"
-    | "LedgerPlanPremium3M"
-    | "LedgerPlanPremium5M"
-    | "LedgerPlanPremium10M"
-    | "LedgerPlanPremium20M";
-  type: "unknown" | "new-purchase" | "unused-time";
-}
-
-export interface StripePaymentIntent {
-  amount: number;
-  clientSecret: null | string;
-  currency: "jpy" | "inr" | "usd";
-  id: string;
-  paymentMethod: null | string;
-  status:
-    | "canceled"
-    | "processing"
-    | "requires_action"
-    | "requires_capture"
-    | "requires_confirmation"
-    | "requires_payment_method"
-    | "succeeded";
-}
-
-export interface StripeInvoicePaymentMethod {
-  brand: string;
-  last4: string;
-}
-
-export interface StripeInvoiceBankTransferDetails {
-  bankCode: string;
-  bankName: string;
-  branchCode: string;
-  branchName: string;
-  accountType: string;
-  accountNumber: string;
-  accountHolder: string;
-}
-
-export interface StripeInvoice {
-  amountDue: number;
-  created: number;
-  currency: "jpy" | "inr" | "usd";
-  discount: null | unknown;
-  dueDate: null | number;
-  endingBalance: null | number;
-  id: string;
-  invoicePDF: undefined | null | string;
-  lines: StripeInvoiceLineItem[];
-  nextPaymentAttempt: null | number;
-  number: null | string;
-  paidAt: null | number;
-  paymentIntent: null | StripePaymentIntent;
-  paymentMethod?: StripeInvoicePaymentMethod;
-  paymentMethodTypes:
-    | null
-    | (
-        | "link"
-        | "ach_credit_transfer"
-        | "ach_debit"
-        | "acss_debit"
-        | "au_becs_debit"
-        | "bacs_debit"
-        | "bancontact"
-        | "boleto"
-        | "card"
-        | "cashapp"
-        | "customer_balance"
-        | "fpx"
-        | "giropay"
-        | "grabpay"
-        | "ideal"
-        | "konbini"
-        | "paynow"
-        | "paypal"
-        | "promptpay"
-        | "sepa_credit_transfer"
-        | "sepa_debit"
-        | "sofort"
-        | "us_bank_account"
-        | "wechat_pay"
-      )[];
-  periodEnd: number;
-  periodStart: number;
-  postPaymentCreditNotesAmount: number;
-  receiptUrl: null | string;
-  startingBalance: number;
-  status: null | "void" | "draft" | "open" | "paid" | "uncollectible";
-  subtotal: number;
-  tax: null | number;
-  total: number;
-  totalDiscountAmounts: null | unknown[];
-  totalTaxAmounts: unknown[];
-  bitpayInvoiceUrl?: string;
-  bitpayStatus?: "paid" | "complete" | "confirmed" | "expired" | "invalid" | "new";
-  customPaymentMethod?: "bankTransfer" | "bitpay";
-  bankTransferDetails?: StripeInvoiceBankTransferDetails;
-  dismissAutoRenewalOffWarning: boolean;
-}
-
-export interface StripePlan {
-  active: boolean;
-  amount: number;
-  billingTier:
-    | "LedgerPlanFree"
-    | "LedgerPlanEntry"
-    | "LedgerPlanLight"
-    | "LedgerPlanStandard"
-    | "LedgerPlanAdvanced"
-    | "LedgerPlanPremium"
-    | "LedgerPlanVip"
-    | "LedgerPlanEnterprise"
-    | "LedgerPlanFreeInternational"
-    | "LedgerPlanBasic"
-    | "LedgerPlanPrime"
-    | "LedgerPlanPro"
-    | "LedgerPlanProPlus"
-    | "LedgerPlanProUnlimited"
-    | "LedgerPlanDataRetention"
-    | "LedgerPlanIndiaExclusive"
-    | "LedgerPlanTrial"
-    | "LedgerPlanPremium2M"
-    | "LedgerPlanPremium3M"
-    | "LedgerPlanPremium5M"
-    | "LedgerPlanPremium10M"
-    | "LedgerPlanPremium20M";
-  currency: "jpy" | "inr" | "usd";
-  id: string;
-  isPurchasable?: boolean;
-}
-
-export interface UpcomingInvoiceParams {
-  discounts?: null | "" | unknown[];
-  subscription: string;
-  subscription_items: unknown[];
-  subscription_billing_cycle_anchor: number | "now" | "unchanged";
-  subscription_default_tax_rates: null | "" | string[];
-  subscription_proration_behavior: "always_invoice" | "create_prorations" | "none";
-  subscription_proration_date: number;
-}
-
-export interface StripeSubscriptionBankTransferDetails {
-  bankCode: string;
-  bankName: string;
-  branchCode: string;
-  branchName: string;
-  accountType: string;
-  accountNumber: string;
-  accountHolder: string;
-}
-
-export interface StripeSubscription {
-  cancelAt: null | number;
-  cancelAtPeriodEnd: boolean;
-  collectionMethod: "charge_automatically" | "send_invoice";
-  currentPeriodEnd: number;
-  currentPeriodStart: number;
-  id: string;
-  latestInvoice: null | StripeInvoice;
-  plan: StripePlan;
-  schedule: null | string;
-  status:
-    | "canceled"
-    | "active"
-    | "incomplete"
-    | "incomplete_expired"
-    | "past_due"
-    | "paused"
-    | "trialing"
-    | "unpaid";
-  upcomingInvoiceParams?: UpcomingInvoiceParams;
-  previousBillingTier?:
-    | "LedgerPlanFree"
-    | "LedgerPlanEntry"
-    | "LedgerPlanLight"
-    | "LedgerPlanStandard"
-    | "LedgerPlanAdvanced"
-    | "LedgerPlanPremium"
-    | "LedgerPlanVip"
-    | "LedgerPlanEnterprise"
-    | "LedgerPlanFreeInternational"
-    | "LedgerPlanBasic"
-    | "LedgerPlanPrime"
-    | "LedgerPlanPro"
-    | "LedgerPlanProPlus"
-    | "LedgerPlanProUnlimited"
-    | "LedgerPlanDataRetention"
-    | "LedgerPlanIndiaExclusive"
-    | "LedgerPlanTrial"
-    | "LedgerPlanPremium2M"
-    | "LedgerPlanPremium3M"
-    | "LedgerPlanPremium5M"
-    | "LedgerPlanPremium10M"
-    | "LedgerPlanPremium20M";
-  bitpayInvoiceUrl?: string;
-  bitpayStatus?: "paid" | "complete" | "confirmed" | "expired" | "invalid" | "new";
-  customPaymentMethod?: "bankTransfer" | "bitpay";
-  bankTransferDetails?: StripeSubscriptionBankTransferDetails;
-  dismissAutoRenewalOffWarning: boolean;
-}
-
-export interface BillingPlanResponse {
-  autoRenewalEpoch?: null | string;
-  signedUpCountryCode: string;
-  subscription: null | StripeSubscription;
-}
-
-export interface BillingPlansResponse {
-  plans: StripePlan[];
-}
-
-export interface BillingInvoicesResponse {
-  hasMore: boolean;
-  list: StripeInvoice[];
-}
-
-export interface SettingsShowResponse {
-  email: string;
-  language: "en" | "ja";
-}
-
-export interface SettingsUpdateResponse {
-  language: "en" | "ja";
-}
-
-export interface MailingListShowResponseSubscriptions {
-  mandatory: boolean;
-  announcements: boolean;
-  marketing: boolean;
-  transactional: boolean;
-}
-
-export interface MailingListShowResponse {
-  subscriptions: MailingListShowResponseSubscriptions;
-}
-
-export interface DefiEditResponseUserEdit {
-  ledgerId: string;
-  chain: string;
-  transactionHash: string;
-  pendingAction?: string;
-  pendingTransferType?: string;
-  appliedAction?: string;
-  appliedTransferType?: string;
-}
-
-export interface DefiEditResponse {
-  userEdits: DefiEditResponseUserEdit[];
-}
-
-export interface DefiEditsResponse {
-  userEdits: Record<
-    string,
-    "PENDING_APPLICATION" | "APPLIED" | "PENDING_REMOVAL" | "PENDING_UPDATE"
-  >;
-}
-
-export interface DefiStatsResponseConfirm {
-  transfers: number;
-  risky: number;
-  unknown: number;
-  others: number;
-  all: number;
-  classified: number;
-  total: number;
-}
-
-export interface DefiStatsResponseAssetHashe {
-  symbol: string;
-  address: string;
-  tokenName: string;
-}
-
-export interface DefiStatsResponse {
-  chainFamily: "SOLANA" | "BITCOIN" | "SUI" | "EVM" | "COSMOS";
-  chains: string[];
-  confirm: DefiStatsResponseConfirm;
-  services: string[];
-  actionDetail: (
-    | "ERROR"
-    | "BONUS"
-    | "BORROW"
-    | "LOSS"
-    | "PAY"
-    | "RETURN"
-    | "IGNORE"
-    | "UNSUPPORTED"
-    | "EXCHANGE_TRANSFER"
-    | "APPROVE"
-    | "SWAP"
-    | "ADD_LIQUIDITY"
-    | "REMOVE_LIQUIDITY"
-    | "ENTER_LP_STAKING"
-    | "LEAVE_LP_STAKING"
-    | "ENTER_STAKING"
-    | "LEAVE_STAKING"
-    | "ENTER_LENDING"
-    | "LEAVE_LENDING"
-    | "WRAP"
-    | "UNWRAP"
-    | "HARVEST"
-    | "FEEONLY"
-    | "UNKNOWN"
-    | "TRANSFER_CANCEL"
-    | "TRANSFER_SELF"
-    | "TRANSFER_IN"
-    | "TRANSFER_OUT"
-    | "UNABLE_TO_PROCESS"
-    | "CONVERTED"
-  )[];
-  assetHashes: DefiStatsResponseAssetHashe[];
-  addresses: string[];
-  methods: string[];
-}
-
-export interface LiveViewPositionResponseByCoinPosition {
-  amount: string;
-  asset: string;
-  exchange: string;
-  marketValue: null | string;
-  price: null | string;
-  subAccount: null | string;
-  wallet: string;
-}
-
-export interface LiveViewPositionResponseByCoin {
-  coin: string;
-  positions: LiveViewPositionResponseByCoinPosition[];
-}
-
-export interface LiveViewPositionResponseByExchangePosition {
-  amount: string;
-  asset: string;
-  exchange: string;
-  marketValue: null | string;
-  price: null | string;
-  subAccount: null | string;
-  wallet: string;
-}
-
-export interface LiveViewPositionResponseByExchange {
-  exchange: string;
-  positions: LiveViewPositionResponseByExchangePosition[];
-}
-
-export interface LiveViewPositionResponse {
-  byCoin: LiveViewPositionResponseByCoin[];
-  byExchange: LiveViewPositionResponseByExchange[];
-}
-
-export interface LiveViewSnapshotsResponse {
-  timestamps: number[];
-}
-
-export interface LiveViewSettingsResponse {
-  isPositionSnapshotEnabled: boolean;
-}
-
-export interface InstrumentsListResponseCryptoNames {
-  en: Record<string, string>;
-  ja: Record<string, string>;
-}
-
-export interface InstrumentsListResponseFxNames {
-  en: Record<string, string>;
-  ja: Record<string, string>;
-}
-
-export interface InstrumentsListResponse {
-  cryptoMarketCaps: Record<string, number>;
-  cryptoNames: InstrumentsListResponseCryptoNames;
-  cryptoTokenAddresses: Record<string, string[]>;
-  fxNames: InstrumentsListResponseFxNames;
-}
-
-export interface UserInfoResponse {
-  role: "Admin" | "Enterprise" | "System" | "Unverified" | "Verified";
-  onboarded: boolean;
-  adminPermissions?: string[];
-}
-
-export interface UserReferralsResponseReferralStats {
-  subscribed: number;
-  paid: number;
-  balance: number;
-  earned: number;
-}
-
-export interface UserReferralsResponse {
-  referralCode: string;
-  referralStats: UserReferralsResponseReferralStats;
-}
-
-export interface UserInfoReceive {
-  role: "Admin" | "Enterprise" | "System" | "Unverified" | "Verified";
-  onboarded: boolean;
-  adminPermissions?: string[];
-}
-
-// ---------------------------------------------------------------------------
-// Spec data
-// ---------------------------------------------------------------------------
-
 export const spec: GroupDef[] = [
   {
-    name: "auth",
-    description: "Authentication commands",
+    name: "billing",
+    description: "Billing and subscription",
+    aliases: ["stripe"],
     commands: [
       {
-        name: "login",
-        description: "Log in to cryptact",
-        handler: "auth/login",
+        name: "invoices",
+        groupKey: "stripeRoutes",
+        routeKey: "listInvoices",
+        method: "GET",
+        path: "/stripe/invoices",
+        type: "query",
+        description: "Show invoice history",
         options: [
           {
-            flags: "--device-code",
-            description: "Use device code flow (for headless/SSH sessions)"
+            flag: "--ending-before <ending-before>",
+            key: "endingBefore",
+            description: "endingBefore",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--limit <n>",
+            key: "limit",
+            description: "limit",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--starting-after <starting-after>",
+            key: "startingAfter",
+            description: "startingAfter",
+            required: false,
+            type: "string"
           }
         ]
       },
       {
-        name: "logout",
-        description: "Clear stored authentication tokens",
-        handler: "auth/logout"
-      },
-      {
-        name: "status",
-        description: "Show current authentication status",
-        handler: "auth/status"
-      }
-    ]
-  },
-  {
-    name: "ledger",
-    description: "Ledger processing",
-    commands: [
-      {
-        name: "show",
-        description: "Display ledger settings",
-        needsLedger: true,
-        handler: "ledger/show"
-      },
-      {
-        name: "status",
-        description: "Show ledger processing status",
-        needsLedger: true,
-        handler: "ledger/status"
-      },
-      {
-        name: "reprocess",
-        description: "Trigger ledger processing and poll until done",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--force-rebuild",
-            description: "Force a full rebuild"
-          },
-          {
-            flags: "--from <timestamp>",
-            description: "Process from Unix timestamp in milliseconds"
-          }
-        ],
-        handler: "ledger/reprocess"
-      },
-      {
-        name: "download-preview",
-        description: "List available download files",
-        needsLedger: true,
-        handler: "ledger/download-preview"
-      },
-      {
-        name: "download",
-        description: "Trigger report download (sent via email)",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--year <year>",
-            description: "Fiscal year"
-          }
-        ],
-        handler: "ledger/download"
-      },
-      {
-        name: "update",
-        description: "Update ledger settings",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--reporting-ccy <ccy>",
-            description: "Set reporting currency"
-          },
-          {
-            flags: "--cost-basis-method <method>",
-            description:
-              'Cost basis method (FIFO, LIFO, HIFO, "Average Cost", or "Periodic Average")'
-          },
-          {
-            flags: "--fx-cost-basis-method <method>",
-            description: "FX cost basis method (FIFO, LIFO, or HIFO)"
-          },
-          {
-            flags: "--timezone <tz>",
-            description: "Set timezone"
-          },
-          {
-            flags: "--fiscal-year-end-month <month>",
-            description: "Fiscal year end month, 1-12 (e.g. 12 for December)"
-          },
-          {
-            flags: "--defi-translator <mode>",
-            description: "Set DeFi translator (CONFIRM or DIFFERENTIAL)"
-          },
-          {
-            flags: "--position-decimal-places <n>",
-            description: "Position decimal places, 8-20 (default 8)"
-          },
-          {
-            flags: "--allow-marginal-flip",
-            description: "Enable marginal flip"
-          },
-          {
-            flags: "--marginal-flip-threshold <n>",
-            description: "Set marginal flip threshold"
-          },
-          {
-            flags: "--always-use-ttm",
-            description: "Always use TTM rates"
-          },
-          {
-            flags: "--corporate-m2m-method <method>",
-            description: "Set corporate mark-to-market method (reversal or cutoff)"
-          },
-          {
-            flags: "--price-lookup-fallback-to-zero",
-            description: "Fall back to zero for missing prices"
-          },
-          {
-            flags: "--send-fee-expensed",
-            description: "Expense send fees"
-          },
-          {
-            flags: "--adjusted-cost-basis-from-fy <year>",
-            description: "Use adjusted cost basis from fiscal year"
-          },
-          {
-            flags: "--import-asset-movements",
-            description: "Import asset movements"
-          }
-        ],
-        handler: "ledger/update"
-      },
-      {
-        name: "summary",
-        description: "Show yearly tax P&L summary",
-        needsLedger: true,
-        handler: "ledger/summary"
-      }
-    ]
-  },
-  {
-    name: "transaction",
-    description: "Transaction management",
-    commands: [
-      {
-        name: "search",
-        description: "Search transactions",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--source <source>",
-            description: "Filter by source, comma-separated (e.g. binance,coinbase)"
-          },
-          {
-            flags: "--action <action>",
-            description: "Filter by action, comma-separated (e.g. BUY,SELL,MINING)"
-          },
-          {
-            flags: "--fee-currency <fc>",
-            description: "Filter by fee currency, comma-separated (e.g. JPY,BTC)"
-          },
-          {
-            flags: "--pair <pair>",
-            description: "Filter by pair, comma-separated (e.g. BTC/JPY,ETH/USD)"
-          },
-          {
-            flags: "--from <date>",
-            description: "From date (YYYY-MM-DD)"
-          },
-          {
-            flags: "--to <date>",
-            description: "To date (YYYY-MM-DD)"
-          },
-          {
-            flags: "--limit <n>",
-            description: "Max results"
-          },
-          {
-            flags: "--has-error",
-            description: "Show only transactions with errors"
-          },
-          {
-            flags: "--offset <n>",
-            description: "Pagination offset"
-          },
-          {
-            flags: "--order <direction>",
-            description: "Sort direction: ASC or DESC (default: DESC)"
-          }
-        ],
-        handler: "transaction/search"
-      },
-      {
-        name: "show",
-        description: "Show a single transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        options: [
-          {
-            flags: "--type <type>",
-            description: "Transaction type: processed or unprocessed"
-          }
-        ],
-        handler: "transaction/show"
-      },
-      {
-        name: "edit",
-        description: "Edit a transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        options: [
-          {
-            flags: "--action <action>",
-            description: "Set action"
-          },
-          {
-            flags: "--base <base>",
-            description: "Set base currency"
-          },
-          {
-            flags: "--counter <counter>",
-            description: "Set counter currency"
-          },
-          {
-            flags: "--fee-currency <fc>",
-            description: "Set fee currency"
-          },
-          {
-            flags: "--volume <volume>",
-            description: "Set volume"
-          },
-          {
-            flags: "--price <price>",
-            description: "Set price"
-          },
-          {
-            flags: "--fee <fee>",
-            description: "Set fee"
-          },
-          {
-            flags: "--source <source>",
-            description: "Set source"
-          },
-          {
-            flags: "--comment <comment>",
-            description: "Set comment (use empty string to clear)"
-          },
-          {
-            flags: "--timestamp <ts>",
-            description: "Set timestamp (ISO 8601, e.g. 2024-01-15T10:00:00Z)"
-          },
-          {
-            flags: "--rc <currency>",
-            description: "Set realized P&L currency"
-          },
-          {
-            flags: "--realized <amount>",
-            description: "Set realized P&L amount"
-          }
-        ],
-        handler: "transaction/edit"
-      },
-      {
-        name: "delete",
-        description: "Delete a transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        handler: "transaction/delete"
-      },
-      {
-        name: "exclude",
-        description: "Exclude or re-include a transaction from processing",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        options: [
-          {
-            flags: "--undo",
-            description: "Re-include a previously excluded transaction"
-          }
-        ],
-        handler: "transaction/exclude"
-      },
-      {
-        name: "summary",
-        description: "Show after-transaction P&L summary",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        handler: "transaction/summary"
-      },
-      {
-        name: "loan-summary",
-        description: "Show loan summary for a transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        handler: "transaction/loan-summary"
-      },
-      {
-        name: "open-close",
-        description: "Show open/close details for a transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        handler: "transaction/open-close"
-      },
-      {
-        name: "balance-summary",
-        description: "Show balance summary for a transaction",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "uuid",
-            description: "Transaction UUID",
-            required: true
-          }
-        ],
-        handler: "transaction/balance-summary"
-      }
-    ]
-  },
-  {
-    name: "exchange",
-    description: "Exchange API keys, sync, and file management",
-    commands: [
-      {
-        name: "keys",
-        description: "List registered exchange API keys",
-        needsLedger: true,
-        handler: "exchange/keys"
-      },
-      {
-        name: "endpoints",
-        description: "List exchange endpoints",
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          }
-        ],
-        handler: "exchange/endpoints"
-      },
-      {
-        name: "key-add",
-        description: "Register a new exchange API key",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--public-key <publicKey>",
-            description: "Public API key",
-            required: true
-          },
-          {
-            flags: "--private-key <privateKey>",
-            description: "Private API key",
-            required: true
-          },
-          {
-            flags: "--passphrase <passphrase>",
-            description: "API passphrase (if required)"
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account name"
-          },
-          {
-            flags: "--endpoints <json>",
-            description:
-              'Endpoints JSON, e.g. \'[{"endpoint":"trades"}]\' (run "exchange endpoints" to list)',
-            required: true
-          }
-        ],
-        handler: "exchange/key-add"
-      },
-      {
-        name: "key-delete",
-        description: "Remove an exchange API key",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account name"
-          }
-        ],
-        handler: "exchange/key-delete"
-      },
-      {
-        name: "key-update",
-        description: "Update an exchange API key's endpoints",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account name",
-            required: true
-          },
-          {
-            flags: "--endpoints <json>",
-            description:
-              'Endpoints JSON, e.g. \'[{"endpoint":"trades"}]\' (run "exchange endpoints" to list)',
-            required: true
-          }
-        ],
-        handler: "exchange/key-update"
-      },
-      {
-        name: "sync",
-        description: "Start exchange sync job",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account"
-          },
-          {
-            flags: "--endpoint <endpoint>",
-            description: "Specific endpoint to sync"
-          }
-        ],
-        handler: "exchange/sync"
-      },
-      {
-        name: "sync-status",
-        description: "Show exchange sync job statuses",
-        needsLedger: true,
-        handler: "exchange/sync-status"
-      },
-      {
-        name: "sync-cancel",
-        description: "Cancel exchange sync job",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account name"
-          },
-          {
-            flags: "--endpoint <endpoint>",
-            description: "Specific endpoint to cancel"
-          }
-        ],
-        handler: "exchange/sync-cancel"
-      },
-      {
-        name: "processing-status",
-        description: "Show exchange processing status",
-        handler: "exchange/processing-status"
-      },
-      {
-        name: "files",
-        description: "List active exchange files",
-        needsLedger: true,
-        handler: "exchange/files"
-      },
-      {
-        name: "file-history",
-        description: "Show file upload history",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--offset <n>",
-            description: "Pagination offset"
-          }
-        ],
-        handler: "exchange/file-history"
-      },
-      {
-        name: "file-details",
-        description: "Show details of an uploaded file",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "fileId",
-            description: "File ID (numeric)",
-            required: true
-          }
-        ],
-        handler: "exchange/file-details"
-      },
-      {
-        name: "file-upload",
-        description:
-          "Upload a file to an exchange\n\nCustom file format: https://support.cryptact.com/hc/en-us/articles/360002571312",
-        needsLedger: true,
-        arguments: [
-          {
-            name: "file",
-            description: "Path to file",
-            required: true
-          }
-        ],
-        options: [
-          {
-            flags: "--exchange-file-id <id>",
-            description: "Exchange file identifier (e.g. User.Custom)",
-            required: true
-          },
-          {
-            flags: "--timezone <tz>",
-            description: "File timezone"
-          },
-          {
-            flags: "--sub-id <subId>",
-            description: "Sub ID"
-          },
-          {
-            flags: "--password <password>",
-            description: "File password (if encrypted)"
-          }
-        ],
-        handler: "exchange/file-upload"
-      }
-    ]
-  },
-  {
-    name: "wallet",
-    description: "DeFi wallet address management",
-    commands: [
-      {
-        name: "list",
-        description: "List DeFi wallet addresses",
-        needsLedger: true,
-        handler: "exchange/wallets"
-      },
-      {
-        name: "add",
-        description: "Add a DeFi wallet address",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--chain <chain>",
-            description: "Blockchain name",
-            required: true
-          },
-          {
-            flags: "--address <address>",
-            description: "Wallet address",
-            required: true
-          },
-          {
-            flags: "--memo <memo>",
-            description: "Optional memo/tag"
-          }
-        ],
-        handler: "exchange/wallet-add"
-      },
-      {
-        name: "delete",
-        description: "Remove a DeFi wallet address",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--chain <chain>",
-            description: "Blockchain name",
-            required: true
-          },
-          {
-            flags: "--address <address>",
-            description: "Wallet address",
-            required: true
-          }
-        ],
-        handler: "exchange/wallet-delete"
-      },
-      {
-        name: "update",
-        description: "Update a DeFi wallet address",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--chain <chain>",
-            description: "Blockchain name",
-            required: true
-          },
-          {
-            flags: "--address <address>",
-            description: "Wallet address",
-            required: true
-          },
-          {
-            flags: "--memo <memo>",
-            description: "Optional memo/tag"
-          }
-        ],
-        handler: "exchange/wallet-update"
-      },
-      {
-        name: "add-multi",
-        description: "Add a wallet address to multiple chains",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--chains <chains>",
-            description: "Comma-separated chain names (e.g. ethereum,polygon,arbitrum)",
-            required: true
-          },
-          {
-            flags: "--address <address>",
-            description: "Wallet address",
-            required: true
-          },
-          {
-            flags: "--memo <memo>",
-            description: "Optional memo/tag"
-          }
-        ],
-        handler: "exchange/wallet-add-multi"
-      },
-      {
-        name: "sync",
-        description: "Start wallet sync job",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account"
-          },
-          {
-            flags: "--endpoint <endpoint>",
-            description: "Specific endpoint to sync"
-          }
-        ],
-        handler: "exchange/sync"
-      },
-      {
-        name: "sync-status",
-        description: "Show wallet sync job statuses",
-        needsLedger: true,
-        handler: "exchange/sync-status"
-      },
-      {
-        name: "sync-cancel",
-        description: "Cancel wallet sync job",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--exchange <exchange>",
-            description: "Exchange identifier",
-            required: true
-          },
-          {
-            flags: "--sub-account <subAccount>",
-            description: "Sub account name"
-          },
-          {
-            flags: "--endpoint <endpoint>",
-            description: "Specific endpoint to cancel"
-          }
-        ],
-        handler: "exchange/sync-cancel"
-      }
-    ]
-  },
-  {
-    name: "portfolio",
-    description: "Portfolio views",
-    commands: [
-      {
-        name: "show",
-        description: "Show portfolio",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--reporting-ccy <ccy>",
-            description: "Reporting currency (e.g. JPY, USD)"
-          }
-        ],
-        handler: "portfolio/show"
-      },
-      {
-        name: "history",
-        description: "Show portfolio history (detailed, detailed-pnl, global-pnl)",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--from <timestamp>",
-            description: "Start Unix timestamp in milliseconds (e.g. 1704067200000 for 2024-01-01)"
-          },
-          {
-            flags: "--to <timestamp>",
-            description: "End Unix timestamp in milliseconds (e.g. 1735689600000 for 2025-01-01)"
-          }
-        ],
-        arguments: [
-          {
-            name: "type",
-            description: "Snapshot type: detailed, detailed-pnl, or global-pnl",
-            required: true
-          }
-        ],
-        handler: "portfolio/history"
-      },
-      {
-        name: "coin-history",
-        description: "Show single-asset portfolio history over time",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--coin <coin>",
-            description: "Coin symbol (e.g. BTC, ETH)",
-            required: true
-          },
-          {
-            flags: "--from <timestamp>",
-            description: "Start Unix timestamp in milliseconds (e.g. 1704067200000 for 2024-01-01)",
-            required: true
-          },
-          {
-            flags: "--to <timestamp>",
-            description: "End Unix timestamp in milliseconds (e.g. 1735689600000 for 2025-01-01)",
-            required: true
-          }
-        ],
-        handler: "portfolio/coin-history"
-      }
-    ]
-  },
-  {
-    name: "billing",
-    description: "Billing and subscription",
-    commands: [
-      {
         name: "plan",
-        description: "Show current subscription plan",
-        handler: "billing/plan"
+        groupKey: "stripeRoutes",
+        routeKey: "getSubscription",
+        method: "GET",
+        path: "/stripe/subscription",
+        type: "query",
+        description: "Show current subscription plan"
       },
       {
         name: "plans",
-        description: "List available subscription plans",
-        handler: "billing/plans"
-      },
-      {
-        name: "invoices",
-        description: "Show invoice history",
-        options: [
-          {
-            flags: "--limit <n>",
-            description: "Max results"
-          },
-          {
-            flags: "--ending-before <id>",
-            description: "Cursor for previous page (invoice ID)"
-          },
-          {
-            flags: "--starting-after <id>",
-            description: "Cursor for next page (invoice ID)"
-          }
-        ],
-        handler: "billing/invoices"
-      }
-    ]
-  },
-  {
-    name: "settings",
-    description: "User settings",
-    commands: [
-      {
-        name: "show",
-        description: "Display user settings",
-        handler: "settings/show"
-      },
-      {
-        name: "update",
-        description: "Update user settings",
-        options: [
-          {
-            flags: "--language <lang>",
-            description: 'Language ("en" or "ja")',
-            required: true
-          }
-        ],
-        handler: "settings/update"
-      }
-    ]
-  },
-  {
-    name: "mailing-list",
-    description: "Mailing list subscriptions",
-    commands: [
-      {
-        name: "show",
-        description: "Show current mailing list subscriptions",
-        handler: "mailing-list/show"
+        groupKey: "stripeRoutes",
+        routeKey: "getPlans",
+        method: "GET",
+        path: "/stripe/plans",
+        type: "query",
+        description: "List available subscription plans"
       }
     ]
   },
@@ -2434,249 +129,674 @@ export const spec: GroupDef[] = [
     description: "DeFi transaction management",
     commands: [
       {
-        name: "search",
-        description: "Search DeFi transactions",
+        name: "accept-all",
+        groupKey: "defiRoutes",
+        routeKey: "acceptAllSuggestions",
+        method: "POST",
+        path: "/defi/user-edit/accept-all-suggestions",
+        type: "mutation",
         needsLedger: true,
+        destructive: true,
+        description: "Accept all DeFi suggestions",
         options: [
           {
-            flags: "--chains <chains>",
-            description: "Comma-separated chain names (e.g. ethereum,polygon)",
-            required: true
+            flag: "--start-time <n>",
+            key: "startTime",
+            description: "Start time filter (epoch ms).",
+            required: false,
+            type: "number"
           },
           {
-            flags: "--quick-filter <filter>",
-            description: "Quick filter"
+            flag: "--end-time <n>",
+            key: "endTime",
+            description: "End time filter (epoch ms).",
+            required: false,
+            type: "number"
           },
           {
-            flags: "--limit <n>",
-            description: "Max results"
-          },
-          {
-            flags: "--start-time <time>",
-            description: "Start time (ISO 8601, e.g. 2024-01-01T00:00:00Z)"
-          },
-          {
-            flags: "--end-time <time>",
-            description: "End time (ISO 8601, e.g. 2024-12-31T23:59:59Z)"
-          },
-          {
-            flags: "--sort-order <order>",
-            description: "Sort order (ASC or DESC)"
-          },
-          {
-            flags: "--chain-family <family>",
-            description: "Chain family"
-          },
-          {
-            flags: "--addresses <addrs>",
-            description: "Comma-separated addresses"
-          },
-          {
-            flags: "--services <svcs>",
-            description: "Comma-separated services"
-          },
-          {
-            flags: "--action-detail <details>",
-            description: "Comma-separated action details"
-          },
-          {
-            flags: "--asset-hashes <hashes>",
-            description: "Comma-separated asset hashes"
-          },
-          {
-            flags: "--methods <methods>",
-            description: "Comma-separated method IDs (hex)"
-          },
-          {
-            flags: "--page <n>",
-            description: "Page number (0-based)"
-          }
-        ],
-        handler: "defi/search"
-      },
-      {
-        name: "edit",
-        description: "Edit a DeFi transaction classification",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--chain <chain>",
-            description: "Blockchain name",
-            required: true
-          },
-          {
-            flags: "--tx-hash <hash>",
-            description: "Transaction hash",
-            required: true
-          },
-          {
-            flags: "--action <action>",
+            flag: "--chain-family <chain-family>",
+            key: "chainFamily",
             description:
-              "DeFi action (SWAP, TRANSFER, BONUS, LOSS, PAY, HARVEST, ADD_LIQUIDITY, REMOVE_LIQUIDITY, etc.)",
-            required: true
-          },
-          {
-            flags: "--transfer-type <type>",
-            description: "Transfer type (SELF or OTHER)"
+              'Chain family to scope to (e.g. \'EVM\'). Omit to cover all chain families. (one of: "EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI")',
+            required: false,
+            type: "string",
+            enumRef: "chain-family"
           }
-        ],
-        handler: "defi/edit"
+        ]
       },
       {
         name: "delete-edit",
-        description: "Delete a DeFi transaction user edit",
+        groupKey: "defiRoutes",
+        routeKey: "deleteUserEdit",
+        method: "DELETE",
+        path: "/defi/user-edit",
+        type: "mutation",
         needsLedger: true,
+        destructive: true,
+        description: "Delete a DeFi transaction user edit",
         options: [
           {
-            flags: "--chain <chain>",
-            description: "Blockchain name",
-            required: true
+            flag: "--transactions <json>",
+            key: "transactions",
+            description: "transactions — JSON array",
+            required: true,
+            type: "json"
+          }
+        ]
+      },
+      {
+        name: "edit",
+        groupKey: "defiRoutes",
+        routeKey: "putUserEdit",
+        method: "PUT",
+        path: "/defi/user-edit",
+        type: "mutation",
+        needsLedger: true,
+        description: "Edit a DeFi transaction classification",
+        options: [
+          {
+            flag: "--transactions <json>",
+            key: "transactions",
+            description:
+              "Transactions to reclassify, each a [chain, txHash] pair — chain is the UPPERCASE chain name as returned by DeFi transactions (e.g. 'ETHEREUM'). — JSON array",
+            required: true,
+            type: "json"
           },
           {
-            flags: "--tx-hash <hash>",
-            description: "Transaction hash",
-            required: true
+            flag: "--action <action>",
+            key: "action",
+            description:
+              "DeFi action to apply (e.g. 'SWAP', 'TRANSFER', 'BONUS', 'PAY', 'HARVEST'). null CLEARS an existing manual edit (24 values — see: cryptact reference show defi_action) — accepts \"null\"",
+            required: true,
+            type: "string",
+            enumRef: "defi_action",
+            nullable: true
+          },
+          {
+            flag: "--transfer-type <transfer-type>",
+            key: "transferType",
+            description:
+              "Transfer type for TRANSFER actions: 'BONUS', 'GIVE', 'PAY', 'RECEIVE', 'SELF', 'LOSS' or 'IGNORE' (accepted by this route, but not offered by the per-transaction edit UI); null otherwise. — accepts \"null\"",
+            required: false,
+            type: "string",
+            nullable: true
           }
-        ],
-        handler: "defi/delete-edit"
+        ]
       },
       {
         name: "edits",
+        groupKey: "defiRoutes",
+        routeKey: "searchUserEdits",
+        method: "POST",
+        path: "/defi/user-edit/search",
+        type: "query",
+        needsLedger: true,
         description: "List DeFi user edits",
-        needsLedger: true,
         options: [
           {
-            flags: "--chains <chains>",
-            description: "Comma-separated chain names (e.g. ethereum,polygon)",
-            required: true
+            flag: "--chains <json>",
+            key: "chains",
+            description: "chains — JSON array (contains enums: cryptact reference show chain)",
+            required: true,
+            type: "json",
+            nestedEnumRefs: ["chain"]
           }
-        ],
-        handler: "defi/edits"
-      },
-      {
-        name: "accept-all",
-        description: "Accept all DeFi suggestions",
-        needsLedger: true,
-        options: [
-          {
-            flags: "--start-time <time>",
-            description: "Start time (ISO 8601, e.g. 2024-01-01T00:00:00Z)"
-          },
-          {
-            flags: "--end-time <time>",
-            description: "End time (ISO 8601, e.g. 2024-12-31T23:59:59Z)"
-          },
-          {
-            flags: "--chain-family <family>",
-            description: "Chain family"
-          }
-        ],
-        handler: "defi/accept-all"
+        ]
       },
       {
         name: "mark-risky",
-        description: "Mark unclassified transactions as risky",
+        groupKey: "defiRoutes",
+        routeKey: "markUnclassifiedRisky",
+        method: "POST",
+        path: "/defi/user-edit/mark-risky",
+        type: "mutation",
         needsLedger: true,
+        destructive: true,
+        description: "Mark unclassified transactions as risky",
         options: [
           {
-            flags: "--action <action>",
+            flag: "--action <action>",
+            key: "action",
+            description: "DeFi action to assign (e.g. 'FEEONLY', 'BONUS', 'PAY').",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--start-time <n>",
+            key: "startTime",
+            description: "Start time filter (epoch ms).",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--end-time <n>",
+            key: "endTime",
+            description: "End time filter (epoch ms).",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--chain-family <chain-family>",
+            key: "chainFamily",
             description:
-              "DeFi action (SWAP, TRANSFER, BONUS, LOSS, PAY, HARVEST, ADD_LIQUIDITY, REMOVE_LIQUIDITY, etc.)",
-            required: true
-          },
-          {
-            flags: "--start-time <time>",
-            description: "Start time (ISO 8601, e.g. 2024-01-01T00:00:00Z)"
-          },
-          {
-            flags: "--end-time <time>",
-            description: "End time (ISO 8601, e.g. 2024-12-31T23:59:59Z)"
-          },
-          {
-            flags: "--chain-family <family>",
-            description: "Chain family"
+              'Chain family to scope to (e.g. \'EVM\'). Omit to cover all chain families. (one of: "EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI")',
+            required: false,
+            type: "string",
+            enumRef: "chain-family"
           }
-        ],
-        handler: "defi/mark-risky"
+        ]
       },
       {
         name: "mark-transfers-self",
-        description: "Mark unclassified transfers as self-transfers",
+        groupKey: "defiRoutes",
+        routeKey: "markUnclassifiedTransfersSelf",
+        method: "POST",
+        path: "/defi/user-edit/mark-transfers-self",
+        type: "mutation",
         needsLedger: true,
+        destructive: true,
+        description: "Mark unclassified transfers as self-transfers",
         options: [
           {
-            flags: "--start-time <time>",
-            description: "Start time (ISO 8601, e.g. 2024-01-01T00:00:00Z)"
+            flag: "--start-time <n>",
+            key: "startTime",
+            description: "Start time filter (epoch ms).",
+            required: false,
+            type: "number"
           },
           {
-            flags: "--chain-family <family>",
-            description: "Chain family"
+            flag: "--chain-family <chain-family>",
+            key: "chainFamily",
+            description:
+              'Chain family to scope to (e.g. \'EVM\'). Omit to cover all chain families. (one of: "EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI")',
+            required: false,
+            type: "string",
+            enumRef: "chain-family"
           }
-        ],
-        handler: "defi/mark-transfers-self"
+        ]
+      },
+      {
+        name: "search",
+        groupKey: "defiRoutes",
+        routeKey: "getLedgerTransactions",
+        method: "POST",
+        path: "/defi/ledger/:ledgerId",
+        type: "query",
+        needsLedger: true,
+        description: "Search DeFi transactions across the ledger",
+        options: [
+          {
+            flag: "--chains <json>",
+            key: "chains",
+            description:
+              "UPPERCASE chain names to search (e.g. 'ETHEREUM'). Each one must sit in `chainFamily`, so 'ETHEREUM' with chainFamily 'SOLANA' is rejected, as is naming a deprecated chain. Omit to search every non-deprecated chain in the family; SOLANA and SUI hold a single chain each and ignore it entirely. — JSON array (contains enums: cryptact reference show chain)",
+            required: false,
+            type: "json",
+            nestedEnumRefs: ["chain"]
+          },
+          {
+            flag: "--addresses <json>",
+            key: "addresses",
+            description:
+              "The ledger owner's own wallet addresses, in the chain's own format (hex on EVM); matches transactions any of them took part in. Ignored outside EVM, BITCOIN and CARDANO. — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--services <json>",
+            key: "services",
+            description: "Contract service names. Ignored on BITCOIN and CARDANO. — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--action-detail <json>",
+            key: "actionDetail",
+            description:
+              "Matches the effective action detail: the user's edit where there is one, the resolved detail otherwise. — JSON array (contains enums: cryptact reference show action-detail)",
+            required: false,
+            type: "json",
+            nestedEnumRefs: ["action-detail"]
+          },
+          {
+            flag: "--asset-hashes <json>",
+            key: "assetHashes",
+            description:
+              "Asset identifiers in the chain's own format: contract address (hex) on EVM, mint (base58) or the literal 'Native SOL' on Solana, denom on Cosmos, coin type on Sui. Ignored on BITCOIN and CARDANO. — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--methods <json>",
+            key: "methods",
+            description: "Method IDs (hex), not method names. EVM only. — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--quick-filter <quick-filter>",
+            key: "quickFilter",
+            description:
+              'Preset bucket. The split is unclassified versus classified: CONFIRM covers every unclassified transaction, narrowed by TRANSFERS, UNKNOWN, CONFIRM_OTHERS or CONFIRM_RISKY; IDENTIFIED_ALL covers every classified one, narrowed by IDENTIFIED_AUTO (classified by the dictionary, excluding anything a transfer classification rule matched), IDENTIFIED_MANUAL (classified by a user edit), IDENTIFIED_RULE (classified by a transfer classification rule) or IDENTIFIED_RISKY. AUTO, MANUAL and RULE are disjoint, so surveying every classified transaction needs all three — or IDENTIFIED_ALL. On both sides the subcategories other than the risky one leave out transactions at or above the risk threshold. (one of: "TRANSFERS", "UNKNOWN", "CONFIRM_OTHERS", "CONFIRM_RISKY", "CONFIRM", "IDENTIFIED_AUTO", "IDENTIFIED_MANUAL", "IDENTIFIED_RULE", "IDENTIFIED_RISKY", "IDENTIFIED_ALL")',
+            required: false,
+            type: "string",
+            enumRef: "quick-filter"
+          },
+          {
+            flag: "--start-time <start-time>",
+            key: "startTime",
+            description: "Epoch milliseconds, as a string.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--end-time <end-time>",
+            key: "endTime",
+            description: "Epoch milliseconds, as a string.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--sort-order <sort-order>",
+            key: "sortOrder",
+            description: 'Sort by timestamp. Defaults to ASC. (one of: "ASC", "DESC")',
+            required: false,
+            type: "string",
+            enumRef: "sort-order"
+          },
+          {
+            flag: "--limit <n>",
+            key: "limit",
+            description:
+              "Page size. Omitted reaches the API as 0 and returns no transactions — use 0 deliberately to read `total` alone.",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--page <n>",
+            key: "page",
+            description:
+              "1-based page number; anything below 1 is served as the first page. `total` is the count for the whole filter, not the page.",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--chain-family <chain-family>",
+            key: "chainFamily",
+            description:
+              'Family the `chains` belong to. Required in practice whenever `chains` is set: an omitted family matches no chain, so every named chain is rejected. Omit both to search the EVM family. (one of: "EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI")',
+            required: false,
+            type: "string",
+            enumRef: "chain-family"
+          }
+        ]
       },
       {
         name: "stats",
-        description: "Show DeFi ledger stats",
+        groupKey: "defiRoutes",
+        routeKey: "getLedgerStats",
+        method: "POST",
+        path: "/defi/ledger/stats",
+        type: "query",
         needsLedger: true,
+        description: "Show DeFi ledger stats",
         options: [
           {
-            flags: "--start-time <time>",
-            description: "Start time (ISO 8601, e.g. 2024-01-01T00:00:00Z)"
+            flag: "--start-time <n>",
+            key: "startTime",
+            description: "startTime",
+            required: false,
+            type: "number"
           },
           {
-            flags: "--chain-family <family>",
-            description: "Chain family"
+            flag: "--chain-family <chain-family>",
+            key: "chainFamily",
+            description:
+              'chainFamily (one of: "EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI")',
+            required: false,
+            type: "string",
+            enumRef: "chain-family"
           }
-        ],
-        handler: "defi/stats"
+        ]
       }
     ]
   },
   {
-    name: "live-view",
-    description: "Live position views",
+    name: "exchange",
+    description: "Exchange API keys, sync, and files",
+    aliases: ["exchange-api", "exchange-file"],
     commands: [
       {
-        name: "position",
-        description: "Show live exchange positions",
-        needsLedger: true,
+        name: "endpoints",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getExchangeEndpoints",
+        method: "GET",
+        path: "/exchange-api/exchange/endpoints",
+        type: "query",
+        description: "List exchange endpoints",
         options: [
           {
-            flags: "--reporting-ccy <ccy>",
-            description: "Reporting currency",
-            required: true
-          },
-          {
-            flags: "--snapshot-timestamp <ts>",
+            flag: "--exchange <exchange>",
+            key: "exchange",
             description:
-              'Snapshot Unix timestamp in milliseconds (run "live-view snapshots" to list)'
+              "Exchange identifier (e.g. 'binance', 'bitflyer'). Must be API-capable. (47 values — see: cryptact reference show api_exchange)",
+            required: true,
+            type: "string",
+            enumRef: "api_exchange"
+          }
+        ]
+      },
+      {
+        name: "file-details",
+        groupKey: "exchangeFileRoutes",
+        routeKey: "getDetails",
+        method: "POST",
+        path: "/exchange-file/details",
+        type: "query",
+        needsLedger: true,
+        description: "Show details of an uploaded file",
+        options: [
+          {
+            flag: "--file-id <n>",
+            key: "fileId",
+            description: "fileId",
+            required: true,
+            type: "number"
+          }
+        ]
+      },
+      {
+        name: "file-history",
+        groupKey: "exchangeFileRoutes",
+        routeKey: "searchHistory",
+        method: "POST",
+        path: "/exchange-file/history",
+        type: "query",
+        paged: true,
+        needsLedger: true,
+        ledgerIdPath: "filter.ledgerId",
+        description: "Show file upload history",
+        options: [
+          {
+            flag: "--filter.file-id <n>",
+            key: "filter.fileId",
+            description: "filter.fileId",
+            required: false,
+            type: "number"
           },
           {
-            flags: "--exchanges <json>",
-            description: 'Exchanges JSON array (e.g. \'[{"exchange":"binance"}]\')',
-            required: true
+            flag: "--filter.ledger-id <ledger-id>",
+            key: "filter.ledgerId",
+            description: "filter.ledgerId",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--filter.exchange-file-ids <json>",
+            key: "filter.exchangeFileIds",
+            description: "filter.exchangeFileIds — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--filter.state <state>",
+            key: "filter.state",
+            description: 'filter.state (one of: "QUEUED", "STARTED", "DONE", "ERROR")',
+            required: false,
+            type: "string",
+            enumRef: "state"
+          },
+          {
+            flag: "--filter <json>",
+            key: "filter",
+            description: "filter — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json",
+            ensureObject: true
+          },
+          {
+            flag: "--offset <n>",
+            key: "offset",
+            description: "Pagination cursor: row offset into the result set. — e.g. 0",
+            required: false,
+            type: "number",
+            example: "0"
           }
-        ],
-        handler: "live-view/position"
+        ]
       },
       {
-        name: "snapshots",
-        description: "List position snapshot timestamps",
+        name: "files",
+        groupKey: "exchangeFileRoutes",
+        routeKey: "getActive",
+        method: "GET",
+        path: "/exchange-file/active",
+        type: "query",
         needsLedger: true,
-        handler: "live-view/snapshots"
+        description: "List active exchange files"
       },
       {
-        name: "settings",
-        description: "Show live-view sync settings",
+        name: "key-add",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "createExchangeKey",
+        method: "POST",
+        path: "/exchange-api/exchange/key",
+        type: "mutation",
         needsLedger: true,
-        handler: "live-view/settings"
+        description: "Register a new exchange API key",
+        options: [
+          {
+            flag: "--endpoints <json>",
+            key: "endpoints",
+            description:
+              "endpoints — JSON array (contains enums: cryptact reference show exchange_api_endpoint)",
+            required: true,
+            type: "json",
+            nestedEnumRefs: ["exchange_api_endpoint"]
+          },
+          {
+            flag: "--exchange <exchange>",
+            key: "exchange",
+            description:
+              "Exchange identifier (e.g. 'binance'). Must be API-capable (47 values — see: cryptact reference show api_exchange)",
+            required: true,
+            type: "string",
+            enumRef: "api_exchange"
+          },
+          {
+            flag: "--sub-account <sub-account>",
+            key: "subAccount",
+            description: "subAccount",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--passphrase <passphrase>",
+            key: "passphrase",
+            description: "passphrase",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--private-key <private-key>",
+            key: "privateKey",
+            description: "Private/secret API key.",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--public-key <public-key>",
+            key: "publicKey",
+            description: "publicKey",
+            required: true,
+            type: "string"
+          }
+        ]
       },
       {
-        name: "enable",
-        description: "Enable live-view position snapshots",
+        name: "key-delete",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "deleteExchangeKey",
+        method: "DELETE",
+        path: "/exchange-api/exchange/key",
+        type: "mutation",
         needsLedger: true,
-        handler: "live-view/enable"
+        destructive: true,
+        description: "Remove an exchange API key",
+        options: [
+          {
+            flag: "--exchange <exchange>",
+            key: "exchange",
+            description: "exchange",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--sub-account <sub-account>",
+            key: "subAccount",
+            description: "subAccount",
+            required: true,
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "key-update",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "updateExchangeKey",
+        method: "PUT",
+        path: "/exchange-api/exchange/key",
+        type: "mutation",
+        needsLedger: true,
+        description: "Update an exchange API key",
+        options: [
+          {
+            flag: "--endpoints <json>",
+            key: "endpoints",
+            description:
+              "endpoints — JSON array (contains enums: cryptact reference show exchange_api_endpoint)",
+            required: true,
+            type: "json",
+            nestedEnumRefs: ["exchange_api_endpoint"]
+          },
+          {
+            flag: "--exchange <exchange>",
+            key: "exchange",
+            description: "exchange (47 values — see: cryptact reference show api_exchange)",
+            required: true,
+            type: "string",
+            enumRef: "api_exchange"
+          },
+          {
+            flag: "--sub-account <sub-account>",
+            key: "subAccount",
+            description: "subAccount",
+            required: false,
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "keys",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getExchangeKeys",
+        method: "GET",
+        path: "/exchange-api/exchange/key",
+        type: "query",
+        needsLedger: true,
+        description: "List registered exchange API keys",
+        options: [
+          {
+            flag: "--exchange <exchange>",
+            key: "exchange",
+            description: "exchange",
+            required: false,
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "processing-status",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getProcessingStatus",
+        method: "GET",
+        path: "/exchange-api/processing-status",
+        type: "query",
+        description: "Show exchange processing status"
+      },
+      {
+        name: "sync",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "startJob",
+        method: "POST",
+        path: "/exchange-api/job/start",
+        type: "mutation",
+        needsLedger: true,
+        description: "Start exchange sync job",
+        options: [
+          {
+            flag: "--exchange-id <exchange-id>",
+            key: "exchangeId",
+            description:
+              "Exchange identifier: a CEX exchange ID (e.g. 'binance'), a DeFi chain ID (e.g. 'ethereum'), the literal 'defi' for all chains, or a chain family ('EVM' | 'SOLANA' | 'COSMOS' | 'BITCOIN' | 'SUI'). Omit to sync every connected exchange. (100 values — see: cryptact reference show exchange-id)",
+            required: false,
+            type: "string",
+            enumRef: "exchange-id"
+          },
+          {
+            flag: "--sub-account <sub-account>",
+            key: "subAccount",
+            description: "Optional sub-account identifier.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--endpoint <endpoint>",
+            key: "endpoint",
+            description: "Optional specific endpoint to sync.",
+            required: false,
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "sync-cancel",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "cancelJob",
+        method: "POST",
+        path: "/exchange-api/job/cancel",
+        type: "mutation",
+        needsLedger: true,
+        description: "Cancel exchange sync job",
+        options: [
+          {
+            flag: "--filters <json>",
+            key: "filters",
+            description:
+              "Cancellations, each { exchange, subAccount?, endpoint? }. exchange: a CEX exchange ID like 'binance', or 'defi' for blockchain sync jobs. — JSON array (contains enums: cryptact reference show exchange, cryptact reference show endpoint)",
+            required: true,
+            type: "json",
+            nestedEnumRefs: ["exchange", "endpoint"]
+          }
+        ]
+      },
+      {
+        name: "sync-status",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getJobStatuses",
+        method: "GET",
+        path: "/exchange-api/job",
+        type: "query",
+        needsLedger: true,
+        description: "Show exchange sync job statuses",
+        options: [
+          {
+            flag: "--exchange <exchange>",
+            key: "exchange",
+            description: "Filter by exchange name (e.g. 'binance', 'kraken').",
+            required: false,
+            type: "string"
+          }
+        ]
       }
     ]
   },
@@ -2686,8 +806,1107 @@ export const spec: GroupDef[] = [
     commands: [
       {
         name: "list",
-        description: "List all crypto and FX instruments",
-        handler: "instruments/list"
+        groupKey: "instrumentsRoutes",
+        routeKey: "listCryptoFx",
+        method: "GET",
+        path: "/instruments/list-crypto-fx",
+        type: "query",
+        description: "List all crypto and FX instruments"
+      },
+      {
+        name: "search",
+        groupKey: "instrumentsRoutes",
+        routeKey: "search",
+        method: "GET",
+        path: "/instruments/search",
+        type: "query",
+        description: "GET /instruments/search",
+        options: [
+          {
+            flag: "--query <query>",
+            key: "query",
+            description:
+              "Case-insensitive substring match against the instrument id or its name in any language. An exact id match is returned first, ahead of the market-cap ordering. Ignored when `symbols` is given.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--symbols <json>",
+            key: "symbols",
+            description:
+              "Exact instrument ids to look up, case-insensitive (e.g. ['BTC', 'LTC']). Takes precedence over `query`, and returns every match regardless of `limit`/`offset`. Ids that are not supported come back in `unsupportedSymbols`. Max 100 per call. — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--include <json>",
+            key: "include",
+            description:
+              "Heavy fields to add to each result: 'marketcap', 'tokenAddresses' (crypto only). Omit for the lean { id, type, name } projection. — JSON array (contains enums: cryptact reference show include)",
+            required: false,
+            type: "json",
+            nestedEnumRefs: ["include"]
+          },
+          {
+            flag: "--language <language>",
+            key: "language",
+            description:
+              'Language of the returned `name`. Defaults to \'en\'; falls back to the English name, then to the id. (one of: "en", "ja")',
+            required: false,
+            type: "string",
+            enumRef: "language"
+          },
+          {
+            flag: "--limit <n>",
+            key: "limit",
+            description: "Page size, 1-100 (default 20).",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--offset <n>",
+            key: "offset",
+            description:
+              "Number of matches to skip (default 0). The instrument table is refreshed periodically, so paging is best-effort: rows can shift between pages when a refresh lands.",
+            required: false,
+            type: "number"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "ledger",
+    description: "Ledger processing",
+    aliases: ["ledger-download"],
+    commands: [
+      {
+        name: "download",
+        groupKey: "ledgerRoutes",
+        routeKey: "download",
+        method: "POST",
+        path: "/ledger/:ledgerId/download",
+        type: "mutation",
+        needsLedger: true,
+        description: "Trigger report download (sent via email)",
+        options: [
+          {
+            flag: "--year <year>",
+            key: "selectedFiscalYear",
+            description: 'Fiscal year — accepts "null"',
+            required: true,
+            type: "number",
+            nullable: true
+          }
+        ]
+      },
+      {
+        name: "download-preview",
+        groupKey: "ledgerRoutes",
+        routeKey: "downloadFilesPreview",
+        method: "GET",
+        path: "/ledger/:ledgerId/download-files-preview",
+        type: "query",
+        needsLedger: true,
+        description: "List available download files",
+        options: [
+          {
+            flag: "--selected-fiscal-year <n>",
+            key: "selectedFiscalYear",
+            description: 'selectedFiscalYear — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          }
+        ]
+      },
+      {
+        name: "list",
+        groupKey: "ledgerRoutes",
+        routeKey: "userLedgerIds",
+        method: "GET",
+        path: "/ledger/user-ledger-ids",
+        type: "query",
+        description: "List user ledger IDs"
+      },
+      {
+        name: "reprocess",
+        groupKey: "ledgerRoutes",
+        routeKey: "process",
+        method: "POST",
+        path: "/ledger/:ledgerId/process",
+        type: "mutation",
+        needsLedger: true,
+        destructive: true,
+        description: "Trigger ledger processing",
+        options: [
+          {
+            flag: "--force-rebuild <true|false>",
+            key: "forceRebuild",
+            description: "forceRebuild",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--from <timestamp>",
+            key: "fromTimestamp",
+            description: "Unix timestamp in milliseconds",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--wait",
+            key: "wait",
+            description: "Poll processing status until it completes (DONE/ERROR/TIMEOUT)",
+            type: "boolean",
+            local: true
+          }
+        ]
+      },
+      {
+        name: "show",
+        groupKey: "ledgerRoutes",
+        routeKey: "detail",
+        method: "GET",
+        path: "/ledger/:ledgerId",
+        type: "query",
+        needsLedger: true,
+        description: "Display ledger settings"
+      },
+      {
+        name: "status",
+        groupKey: "ledgerRoutes",
+        routeKey: "processStatus",
+        method: "GET",
+        path: "/ledger/:ledgerId/process-status",
+        type: "query",
+        needsLedger: true,
+        description: "Show ledger processing status"
+      },
+      {
+        name: "summary",
+        groupKey: "ledgerRoutes",
+        routeKey: "summary",
+        method: "POST",
+        path: "/ledger/:ledgerId/summary",
+        type: "query",
+        needsLedger: true,
+        description: "Show yearly tax P&L summary"
+      },
+      {
+        name: "update",
+        groupKey: "ledgerRoutes",
+        routeKey: "update",
+        method: "PUT",
+        path: "/ledger/:ledgerId",
+        type: "mutation",
+        needsLedger: true,
+        ledgerIdPath: "ledger.ledgerId",
+        description: "Update ledger settings",
+        options: [
+          {
+            flag: "--ledger.ledger-id <ledger-id>",
+            key: "ledger.ledgerId",
+            description: "ledger.ledgerId",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--ledger.allow-marginal-flip <true|false>",
+            key: "ledger.allowMarginalFlip",
+            description: "ledger.allowMarginalFlip",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.always-use-ttm <true|false>",
+            key: "ledger.alwaysUseTTM",
+            description: "ledger.alwaysUseTTM",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.corporate-mark-to-market-method <corporate-mark-to-market-method>",
+            key: "ledger.corporateMarkToMarketMethod",
+            description:
+              'ledger.corporateMarkToMarketMethod (one of: "reversal", "cutoff") — accepts "null"',
+            required: false,
+            type: "string",
+            enumRef: "corporate-mark-to-market-method",
+            nullable: true
+          },
+          {
+            flag: "--ledger.cost-basis-method <cost-basis-method>",
+            key: "ledger.costBasisMethod",
+            description:
+              'ledger.costBasisMethod (one of: "FIFO", "LIFO", "HIFO", "Average Cost", "Periodic Average", "Monthly Periodic Average")',
+            required: false,
+            type: "string",
+            enumRef: "cost-basis-method"
+          },
+          {
+            flag: "--ledger.cost-basis-options.handle-wash-sales <true|false>",
+            key: "ledger.costBasisOptions.handleWashSales",
+            description: "ledger.costBasisOptions.handleWashSales",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.cost-basis-options.split-pl-by-st-lt <true|false>",
+            key: "ledger.costBasisOptions.splitPlByStLt",
+            description: "ledger.costBasisOptions.splitPlByStLt",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.cost-basis-options <json>",
+            key: "ledger.costBasisOptions",
+            description:
+              "ledger.costBasisOptions — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--ledger.defi-translator <defi-translator>",
+            key: "ledger.defiTranslator",
+            description: 'ledger.defiTranslator (one of: "CONFIRM", "DIFFERENTIAL")',
+            required: false,
+            type: "string",
+            enumRef: "defi-translator"
+          },
+          {
+            flag: "--ledger.fiscal-year-end-month <n>",
+            key: "ledger.fiscalYearEndMonth",
+            description:
+              "ledger.fiscalYearEndMonth (13 values — see: cryptact reference show fiscal-year-end-month)",
+            required: false,
+            type: "number",
+            enumRef: "fiscal-year-end-month"
+          },
+          {
+            flag: "--ledger.fx-cost-basis-method <fx-cost-basis-method>",
+            key: "ledger.fxCostBasisMethod",
+            description: 'ledger.fxCostBasisMethod (one of: "FIFO", "LIFO", "HIFO")',
+            required: false,
+            type: "string",
+            enumRef: "fx-cost-basis-method"
+          },
+          {
+            flag: "--ledger.marginal-flip-threshold <n>",
+            key: "ledger.marginalFlipThreshold",
+            description: "ledger.marginalFlipThreshold",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--ledger.position-decimal-places <n>",
+            key: "ledger.positionDecimalPlaces",
+            description: "ledger.positionDecimalPlaces",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--ledger.price-lookup-fallback-to-zero <true|false>",
+            key: "ledger.priceLookupFallbackToZero",
+            description: "ledger.priceLookupFallbackToZero",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.reporting-ccy <reporting-ccy>",
+            key: "ledger.reportingCcy",
+            description:
+              "ledger.reportingCcy (15 values — see: cryptact reference show reporting-ccy)",
+            required: false,
+            type: "string",
+            enumRef: "reporting-ccy"
+          },
+          {
+            flag: "--ledger.send-fee-expensed <true|false>",
+            key: "ledger.sendFeeExpensed",
+            description: "ledger.sendFeeExpensed",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.timezone <timezone>",
+            key: "ledger.timezone",
+            description: "ledger.timezone (594 values — see: cryptact reference show timezone)",
+            required: false,
+            type: "string",
+            enumRef: "timezone"
+          },
+          {
+            flag: "--ledger.use-adjusted-cost-basis-from-fiscal-year <n>",
+            key: "ledger.useAdjustedCostBasisFromFiscalYear",
+            description: 'ledger.useAdjustedCostBasisFromFiscalYear — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          },
+          {
+            flag: "--ledger.locking-fiscal-year <n>",
+            key: "ledger.lockingFiscalYear",
+            description: 'ledger.lockingFiscalYear — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          },
+          {
+            flag: "--ledger.onboarding-status <onboarding-status>",
+            key: "ledger.onboardingStatus",
+            description:
+              'ledger.onboardingStatus (one of: "ledger-settings", "starting-balance", "completed-assistant", "completed-balance") — accepts "null"',
+            required: false,
+            type: "string",
+            enumRef: "onboarding-status",
+            nullable: true
+          },
+          {
+            flag: "--ledger.reset-unlocked-snapshot <true|false>",
+            key: "ledger.resetUnlockedSnapshot",
+            description: "ledger.resetUnlockedSnapshot",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.has-restricted-action-access <true|false>",
+            key: "ledger.hasRestrictedActionAccess",
+            description: "ledger.hasRestrictedActionAccess",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger.import-asset-movements <true|false>",
+            key: "ledger.importAssetMovements",
+            description: "ledger.importAssetMovements",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--ledger <json>",
+            key: "ledger",
+            description: "ledger — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "live-view",
+    commands: [
+      {
+        name: "enable",
+        groupKey: "ledgerRoutes",
+        routeKey: "enableSyncSettings",
+        method: "POST",
+        path: "/ledger/enable-sync-settings",
+        type: "mutation",
+        needsLedger: true,
+        description: "Enable live-view position snapshots",
+        options: [
+          {
+            flag: "--enable <true|false>",
+            key: "enable",
+            description: "enable",
+            required: false,
+            type: "boolean"
+          }
+        ]
+      },
+      {
+        name: "position",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getPositions",
+        method: "POST",
+        path: "/exchange-api/position",
+        type: "query",
+        needsLedger: true,
+        description: "Show live exchange positions",
+        options: [
+          {
+            flag: "--reporting-ccy <reporting-ccy>",
+            key: "reportingCcy",
+            description: "reportingCcy (15 values — see: cryptact reference show reporting-ccy)",
+            required: true,
+            type: "string",
+            enumRef: "reporting-ccy"
+          },
+          {
+            flag: "--exchanges <json>",
+            key: "exchanges",
+            description: "exchanges — JSON array",
+            required: true,
+            type: "json"
+          },
+          {
+            flag: "--snapshot-timestamp <n>",
+            key: "snapshotTimestamp",
+            description: "snapshotTimestamp",
+            required: false,
+            type: "number"
+          }
+        ]
+      },
+      {
+        name: "settings",
+        groupKey: "ledgerRoutes",
+        routeKey: "getSyncSettings",
+        method: "POST",
+        path: "/ledger/get-sync-settings",
+        type: "query",
+        needsLedger: true,
+        description: "Show live-view sync settings"
+      },
+      {
+        name: "snapshots",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getPositionSnapshotTimestamps",
+        method: "POST",
+        path: "/exchange-api/position/snapshot-timestamps",
+        type: "query",
+        needsLedger: true,
+        description: "List position snapshot timestamps"
+      }
+    ]
+  },
+  {
+    name: "mailing-list",
+    description: "Mailing list subscriptions",
+    commands: [
+      {
+        name: "show",
+        groupKey: "mailingListRoutes",
+        routeKey: "getSubscriptions",
+        method: "POST",
+        path: "/mailing-list/",
+        type: "query",
+        description: "Show current mailing list subscriptions"
+      },
+      {
+        name: "subscribe",
+        groupKey: "mailingListRoutes",
+        routeKey: "updateSubscriptions",
+        method: "PUT",
+        path: "/mailing-list/",
+        type: "mutation",
+        description: "Update mailing list subscriptions",
+        options: [
+          {
+            flag: "--subscriptions.mandatory <true|false>",
+            key: "subscriptions.mandatory",
+            description: "subscriptions.mandatory",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--subscriptions.announcements <true|false>",
+            key: "subscriptions.announcements",
+            description: "subscriptions.announcements",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--subscriptions.marketing <true|false>",
+            key: "subscriptions.marketing",
+            description: "subscriptions.marketing",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--subscriptions.transactional <true|false>",
+            key: "subscriptions.transactional",
+            description: "subscriptions.transactional",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--subscriptions <json>",
+            key: "subscriptions",
+            description: "subscriptions — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "portfolio",
+    description: "Portfolio views",
+    aliases: ["portfolio-aggregates"],
+    commands: [
+      {
+        name: "history",
+        groupKey: "portfolioAggregatesRoutes",
+        routeKey: "search",
+        method: "POST",
+        path: "/portfolio-aggregates/search",
+        type: "query",
+        needsLedger: true,
+        description: "Show portfolio history",
+        options: [
+          {
+            flag: "--body <json>",
+            key: "@body",
+            description:
+              "Full request payload as JSON (this route's request schema is a union of shapes)",
+            required: true,
+            type: "json"
+          }
+        ]
+      },
+      {
+        name: "show",
+        groupKey: "portfolioRoutes",
+        routeKey: "detail",
+        method: "POST",
+        path: "/portfolio/:ledgerId",
+        type: "query",
+        needsLedger: true,
+        description: "Show portfolio",
+        options: [
+          {
+            flag: "--reporting-ccy <reporting-ccy>",
+            key: "reportingCcy",
+            description:
+              "Reporting currency code (e.g. JPY, USD). Defaults to the ledger's own. (15 values — see: cryptact reference show reporting-ccy)",
+            required: false,
+            type: "string",
+            enumRef: "reporting-ccy"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "settings",
+    description: "User settings",
+    commands: [
+      {
+        name: "show",
+        groupKey: "settingsRoutes",
+        routeKey: "getUser",
+        method: "GET",
+        path: "/settings/user",
+        type: "query",
+        description: "Display user settings"
+      },
+      {
+        name: "update",
+        groupKey: "settingsRoutes",
+        routeKey: "updateUser",
+        method: "POST",
+        path: "/settings/user",
+        type: "mutation",
+        description: "Update user settings",
+        options: [
+          {
+            flag: "--language <language>",
+            key: "language",
+            description: 'Language preference. (one of: "en", "ja")',
+            required: true,
+            type: "string",
+            enumRef: "language"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "transaction",
+    description: "Transaction management",
+    commands: [
+      {
+        name: "balance-summary",
+        groupKey: "transactionRoutes",
+        routeKey: "getBalanceSummary",
+        method: "POST",
+        path: "/transaction/:transactionId/balance-summary",
+        type: "query",
+        needsLedger: true,
+        description: "Show balance summary for a transaction",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true
+          }
+        ]
+      },
+      {
+        name: "delete-transactions",
+        groupKey: "transactionRoutes",
+        routeKey: "deleteTransactions",
+        method: "DELETE",
+        path: "/transaction/",
+        type: "mutation",
+        needsLedger: true,
+        destructive: true,
+        description: "DELETE /transaction/",
+        aliases: ["delete"],
+        options: [
+          {
+            flag: "--efis <json>",
+            key: "efis",
+            description: "efis — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--period.start <n>",
+            key: "period.start",
+            description: "period.start",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--period.end <n>",
+            key: "period.end",
+            description: "period.end",
+            required: false,
+            type: "number"
+          },
+          {
+            flag: "--period <json>",
+            key: "period",
+            description: "period — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--sub-ids <json>",
+            key: "subIds",
+            description: "subIds — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--transaction.uuid <uuid>",
+            key: "transaction.uuid",
+            description: "transaction.uuid",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction <json>",
+            key: "transaction",
+            description: "transaction — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          }
+        ]
+      },
+      {
+        name: "edit",
+        groupKey: "transactionRoutes",
+        routeKey: "update",
+        method: "PUT",
+        path: "/transaction/:transactionId",
+        type: "mutation",
+        needsLedger: true,
+        description: "Edit a transaction",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true,
+            bodyPath: "transaction.uuid"
+          }
+        ],
+        options: [
+          {
+            flag: "--transaction.act <act>",
+            key: "transaction.act",
+            description:
+              "transaction.act (34 values — see: cryptact reference show transaction_action)",
+            required: false,
+            type: "string",
+            enumRef: "transaction_action"
+          },
+          {
+            flag: "--transaction.bc <bc>",
+            key: "transaction.bc",
+            description: "Base currency: the asset being transacted.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.cc <cc>",
+            key: "transaction.cc",
+            description: "Counter currency: what one unit of `bc` is priced in.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.comment <comment>",
+            key: "transaction.comment",
+            description: 'transaction.comment — accepts "null"',
+            required: false,
+            type: "string",
+            nullable: true
+          },
+          {
+            flag: "--transaction.efi <efi>",
+            key: "transaction.efi",
+            description:
+              "Exchange file / API id identifying the source (e.g. 'coincheck.Standard').",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.fc <fc>",
+            key: "transaction.fc",
+            description: "Fee currency.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.fee <fee>",
+            key: "transaction.fee",
+            description: "Fee amount, expressed in `fc`.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.prc <prc>",
+            key: "transaction.prc",
+            description: "Unit price of one `bc`, expressed in `cc`.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.src <src>",
+            key: "transaction.src",
+            description: "Source the transaction belongs to.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.ts <ts>",
+            key: "transaction.ts",
+            description: "transaction.ts",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.uuid <uuid>",
+            key: "transaction.uuid",
+            description: "transaction.uuid",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.vol <vol>",
+            key: "transaction.vol",
+            description: "Volume: amount of `bc` transacted.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.rc <rc>",
+            key: "transaction.rc",
+            description: 'Derivatives only: realized-P&L currency, or null. — accepts "null"',
+            required: false,
+            type: "string",
+            nullable: true
+          },
+          {
+            flag: "--transaction.realized <realized>",
+            key: "transaction.realized",
+            description:
+              'Derivatives only: realized P&L provided by the exchange, or null. — accepts "null"',
+            required: false,
+            type: "string",
+            nullable: true
+          },
+          {
+            flag: "--transaction <json>",
+            key: "transaction",
+            description:
+              "The transaction to edit. uuid identifies the row; other keys are the backend's short forms: act (action), bc/cc (base/counter currency), fc (fee currency), vol, prc (price), fee, ts (timestamp), comment. — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          }
+        ]
+      },
+      {
+        name: "exclude",
+        groupKey: "transactionRoutes",
+        routeKey: "excludeOrUnexclude",
+        method: "POST",
+        path: "/transaction/:transactionId/:excludeOrUnexclude(exclude|unexclude)",
+        type: "mutation",
+        needsLedger: true,
+        description: "Exclude or re-include a transaction (action given as exclude|unexclude)",
+        aliases: ["unexclude"],
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true,
+            bodyPath: "transaction.uuid"
+          },
+          {
+            name: "action",
+            description: "Either 'exclude' or 'unexclude'",
+            required: true,
+            paramName: "excludeOrUnexclude"
+          }
+        ],
+        options: [
+          {
+            flag: "--transaction.ts <ts>",
+            key: "transaction.ts",
+            description: "transaction.ts",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction.uuid <uuid>",
+            key: "transaction.uuid",
+            description: "transaction.uuid",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--transaction <json>",
+            key: "transaction",
+            description:
+              "The target: { uuid, ts } — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json"
+          }
+        ]
+      },
+      {
+        name: "loan-summary",
+        groupKey: "transactionRoutes",
+        routeKey: "getLoanSummary",
+        method: "POST",
+        path: "/transaction/:transactionId/loan-summary",
+        type: "query",
+        needsLedger: true,
+        description: "Show loan summary for a transaction",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true
+          }
+        ]
+      },
+      {
+        name: "open-close",
+        groupKey: "transactionRoutes",
+        routeKey: "getOpenClose",
+        method: "POST",
+        path: "/transaction/:transactionId/open-close",
+        type: "query",
+        needsLedger: true,
+        description: "Show open/close details for a transaction",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true
+          }
+        ]
+      },
+      {
+        name: "search",
+        groupKey: "transactionRoutes",
+        routeKey: "search",
+        method: "POST",
+        path: "/transaction/search",
+        type: "query",
+        paged: true,
+        needsLedger: true,
+        ledgerIdPath: "filter.ledgerId",
+        description: "Search transactions",
+        options: [
+          {
+            flag: "--filter.action <json>",
+            key: "filter.action",
+            description:
+              "filter.action — JSON array (contains enums: cryptact reference show transaction_action)",
+            required: false,
+            type: "json",
+            nestedEnumRefs: ["transaction_action"],
+            ensureArray: true
+          },
+          {
+            flag: "--filter.fee-currency <json>",
+            key: "filter.feeCurrency",
+            description: "filter.feeCurrency — JSON array",
+            required: false,
+            type: "json",
+            ensureArray: true
+          },
+          {
+            flag: "--filter.feedback-numeric-code <json>",
+            key: "filter.feedbackNumericCode",
+            description: "filter.feedbackNumericCode — JSON array",
+            required: false,
+            type: "json"
+          },
+          {
+            flag: "--filter.from <from>",
+            key: "filter.from",
+            description: 'filter.from — accepts "null"',
+            required: false,
+            type: "string",
+            sendNull: true,
+            nullable: true
+          },
+          {
+            flag: "--filter.from-process-order <n>",
+            key: "filter.fromProcessOrder",
+            description: 'filter.fromProcessOrder — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          },
+          {
+            flag: "--filter.has-error <true|false>",
+            key: "filter.hasError",
+            description: "filter.hasError",
+            required: false,
+            type: "boolean"
+          },
+          {
+            flag: "--filter.ledger-id <ledger-id>",
+            key: "filter.ledgerId",
+            description: 'filter.ledgerId — accepts "null"',
+            required: false,
+            type: "string",
+            sendNull: true,
+            nullable: true
+          },
+          {
+            flag: "--filter.limit <n>",
+            key: "filter.limit",
+            description: 'filter.limit — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          },
+          {
+            flag: "--filter.order-by <json>",
+            key: "filter.orderBy",
+            description:
+              "filter.orderBy — JSON array (contains enums: cryptact reference show column, cryptact reference show sort-order)",
+            required: false,
+            type: "json",
+            nestedEnumRefs: ["column", "sort-order"],
+            ensureArray: true
+          },
+          {
+            flag: "--filter.pair <json>",
+            key: "filter.pair",
+            description: "filter.pair — JSON array",
+            required: false,
+            type: "json",
+            ensureArray: true
+          },
+          {
+            flag: "--filter.source <json>",
+            key: "filter.source",
+            description: "filter.source — JSON array",
+            required: false,
+            type: "json",
+            ensureArray: true
+          },
+          {
+            flag: "--filter.source-mode <source-mode>",
+            key: "filter.sourceMode",
+            description: 'filter.sourceMode (one of: "include", "exclude")',
+            required: false,
+            type: "string",
+            enumRef: "source-mode"
+          },
+          {
+            flag: "--filter.to <to>",
+            key: "filter.to",
+            description: 'filter.to — accepts "null"',
+            required: false,
+            type: "string",
+            sendNull: true,
+            nullable: true
+          },
+          {
+            flag: "--filter.to-process-order <n>",
+            key: "filter.toProcessOrder",
+            description: 'filter.toProcessOrder — accepts "null"',
+            required: false,
+            type: "number",
+            nullable: true
+          },
+          {
+            flag: "--filter <json>",
+            key: "filter",
+            description:
+              "Search criteria. Arrays (source/action/pair/feeCurrency) must be present — use [] for 'any'. sourceMode 'include' (default) keeps only the listed sources, 'exclude' hides them. from/to: ISO date or null. orderBy: e.g. [{column:'ts',order:'DESC'}]. — JSON object (alternative to the dot-path flags above)",
+            required: false,
+            type: "json",
+            ensureObject: true
+          },
+          {
+            flag: "--offset <n>",
+            key: "offset",
+            description: "Pagination cursor: row offset into the result set. — e.g. 0",
+            required: false,
+            type: "number",
+            example: "0"
+          }
+        ]
+      },
+      {
+        name: "show",
+        groupKey: "transactionRoutes",
+        routeKey: "getDetail",
+        method: "POST",
+        path: "/transaction/:transactionId",
+        type: "query",
+        needsLedger: true,
+        description: "Show a single transaction",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true
+          }
+        ],
+        options: [
+          {
+            flag: "--transaction-type <transaction-type>",
+            key: "transactionType",
+            description:
+              "'unprocessed' for raw imports, 'processed' for calculated results. (one of: \"unprocessed\", \"processed\")",
+            required: false,
+            type: "string",
+            enumRef: "transaction-type"
+          }
+        ]
+      },
+      {
+        name: "summary",
+        groupKey: "transactionRoutes",
+        routeKey: "getSummary",
+        method: "POST",
+        path: "/transaction/:transactionId/summary",
+        type: "query",
+        needsLedger: true,
+        description: "Show after-transaction P&L summary",
+        arguments: [
+          {
+            name: "transactionId",
+            description: "transactionId (path parameter)",
+            required: true
+          }
+        ]
       }
     ]
   },
@@ -2697,14 +1916,1837 @@ export const spec: GroupDef[] = [
     commands: [
       {
         name: "info",
-        description: "Show user info",
-        handler: "user/info"
+        groupKey: "userRoutes",
+        routeKey: "getInfo",
+        method: "GET",
+        path: "/user/info",
+        type: "query",
+        description: "Show user info"
       },
       {
         name: "referrals",
-        description: "Show referral stats",
-        handler: "user/referrals"
+        groupKey: "userRoutes",
+        routeKey: "getReferrals",
+        method: "GET",
+        path: "/user/referrals",
+        type: "query",
+        description: "Show referral stats"
+      }
+    ]
+  },
+  {
+    name: "wallet",
+    commands: [
+      {
+        name: "add",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "createWalletAddress",
+        method: "POST",
+        path: "/exchange-api/defi/address",
+        type: "mutation",
+        needsLedger: true,
+        description: "Add a DeFi wallet address",
+        options: [
+          {
+            flag: "--address <address>",
+            key: "address",
+            description: "Wallet address.",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--memo <memo>",
+            key: "memo",
+            description: "Optional memo/label for the wallet.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--chain <chain>",
+            key: "chain",
+            description:
+              "Lowercase chain identifier (e.g. 'ethereum', 'bitcoin'). (46 values — see: cryptact reference show defi_exchange) — additional validation applies; some listed values may be rejected",
+            required: true,
+            type: "string",
+            enumRef: "defi_exchange"
+          }
+        ]
+      },
+      {
+        name: "add-multi",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "createWalletAddressMulti",
+        method: "POST",
+        path: "/exchange-api/defi/address-multi",
+        type: "mutation",
+        needsLedger: true,
+        description: "Add a wallet address to multiple chains",
+        options: [
+          {
+            flag: "--address <address>",
+            key: "address",
+            description: "Wallet address.",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--memo <memo>",
+            key: "memo",
+            description: "Optional memo/label for the wallet.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--chains <json>",
+            key: "chains",
+            description:
+              "chains — JSON array (contains enums: cryptact reference show defi_exchange)",
+            required: true,
+            type: "json",
+            nestedEnumRefs: ["defi_exchange"]
+          }
+        ]
+      },
+      {
+        name: "delete",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "deleteWalletAddress",
+        method: "DELETE",
+        path: "/exchange-api/defi/address",
+        type: "mutation",
+        needsLedger: true,
+        destructive: true,
+        description: "Remove a DeFi wallet address",
+        options: [
+          {
+            flag: "--chain <chain>",
+            key: "chain",
+            description: "chain",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--address <address>",
+            key: "address",
+            description: "address",
+            required: true,
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "delete-all",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "deleteAllWallets",
+        method: "DELETE",
+        path: "/exchange-api/defi",
+        type: "mutation",
+        needsLedger: true,
+        destructive: true,
+        description: "Remove all DeFi wallet addresses"
+      },
+      {
+        name: "list",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "getWalletAddresses",
+        method: "GET",
+        path: "/exchange-api/defi/address",
+        type: "query",
+        needsLedger: true,
+        description: "List DeFi wallet addresses"
+      },
+      {
+        name: "update",
+        groupKey: "exchangeApiRoutes",
+        routeKey: "updateWalletAddress",
+        method: "POST",
+        path: "/exchange-api/defi/address-update",
+        type: "mutation",
+        needsLedger: true,
+        description: "Update a DeFi wallet address",
+        options: [
+          {
+            flag: "--address <address>",
+            key: "address",
+            description: "Wallet address.",
+            required: true,
+            type: "string"
+          },
+          {
+            flag: "--memo <memo>",
+            key: "memo",
+            description: "Optional memo/label for the wallet.",
+            required: false,
+            type: "string"
+          },
+          {
+            flag: "--chain <chain>",
+            key: "chain",
+            description:
+              "Lowercase chain identifier (e.g. 'ethereum', 'bitcoin'). (46 values — see: cryptact reference show defi_exchange) — additional validation applies; some listed values may be rejected",
+            required: true,
+            type: "string",
+            enumRef: "defi_exchange"
+          }
+        ]
       }
     ]
   }
 ];
+
+export const enumRegistry: Record<string, (string | number)[]> = {
+  chain: [
+    "BSC",
+    "ETHEREUM",
+    "FANTOM",
+    "HECO",
+    "POLYGON",
+    "POLYGON_ZKEVM",
+    "AVALANCHE",
+    "ARBITRUM",
+    "OPTIMISM",
+    "BASE",
+    "BERACHAIN",
+    "BLAST",
+    "ASTAR",
+    "ASTAR_ZKEVM",
+    "OASYS",
+    "MCHVERSE",
+    "TCGVERSE",
+    "HOMEVERSE",
+    "CHAINVERSE",
+    "SAAKURUVERSE",
+    "YOOLDOVERSE",
+    "DEFIVERSE",
+    "DM2VERSE",
+    "GESOVERSE",
+    "ZKSYNC_ERA",
+    "FLARE",
+    "GNOSIS",
+    "LINEA",
+    "SCROLL",
+    "SEI_EVM",
+    "SONEIUM",
+    "SONIC",
+    "UNICHAIN",
+    "ABSTRACT",
+    "CELO",
+    "MANTLE",
+    "WORLD",
+    "PLASMA",
+    "HYPEREVM",
+    "SOLANA",
+    "SEI",
+    "DYMENSION",
+    "BITCOIN",
+    "BITCOIN_SIGNET",
+    "CARDANO",
+    "SUI"
+  ],
+  "action-detail": [
+    "ERROR",
+    "EXCHANGE_TRANSFER",
+    "UNSUPPORTED",
+    "APPROVE",
+    "SWAP",
+    "ADD_LIQUIDITY",
+    "REMOVE_LIQUIDITY",
+    "ENTER_LP_STAKING",
+    "LEAVE_LP_STAKING",
+    "ENTER_STAKING",
+    "LEAVE_STAKING",
+    "ENTER_LENDING",
+    "LEAVE_LENDING",
+    "BORROW",
+    "RETURN",
+    "WRAP",
+    "UNWRAP",
+    "HARVEST",
+    "BONUS",
+    "PAY",
+    "IGNORE",
+    "FEEONLY",
+    "UNKNOWN",
+    "COMPLEX",
+    "LOSS",
+    "TRANSFER_CANCEL",
+    "TRANSFER_SELF",
+    "TRANSFER_IN",
+    "TRANSFER_OUT",
+    "UNABLE_TO_PROCESS",
+    "CONVERTED"
+  ],
+  "quick-filter": [
+    "TRANSFERS",
+    "UNKNOWN",
+    "CONFIRM_OTHERS",
+    "CONFIRM_RISKY",
+    "CONFIRM",
+    "IDENTIFIED_AUTO",
+    "IDENTIFIED_MANUAL",
+    "IDENTIFIED_RULE",
+    "IDENTIFIED_RISKY",
+    "IDENTIFIED_ALL"
+  ],
+  "sort-order": ["ASC", "DESC"],
+  "chain-family": ["EVM", "SOLANA", "COSMOS", "BITCOIN", "CARDANO", "SUI"],
+  defi_action: [
+    "BONUS",
+    "LOSS",
+    "PAY",
+    "FEEONLY",
+    "TRANSFER",
+    "SWAP",
+    "HARVEST",
+    "ADD_LIQUIDITY",
+    "REMOVE_LIQUIDITY",
+    "ENTER_STAKING",
+    "LEAVE_STAKING",
+    "ENTER_LP_STAKING",
+    "LEAVE_LP_STAKING",
+    "ENTER_LENDING",
+    "LEAVE_LENDING",
+    "BORROW",
+    "RETURN",
+    "APPROVE",
+    "WRAP",
+    "UNWRAP",
+    "IGNORE",
+    "UNKNOWN",
+    "COMPLEX",
+    "CONVERTED"
+  ],
+  api_exchange: [
+    "ascendex",
+    "binance",
+    "binance-us",
+    "bingx",
+    "bitbns",
+    "bitbank",
+    "bitfinex",
+    "bitget",
+    "bitmart",
+    "bitrue",
+    "bitstamp",
+    "bittrex",
+    "bittrade",
+    "btcc",
+    "btcmarkets",
+    "btse",
+    "bybit",
+    "coinbase",
+    "coinbasepro",
+    "coincheck",
+    "coindcx",
+    "coinex",
+    "coinjar",
+    "coinlistpro",
+    "coinspot",
+    "coinswitch",
+    "cryptocom",
+    "decurret-store",
+    "deepcoin",
+    "deribit",
+    "ftx",
+    "ftx-japan",
+    "gateio",
+    "globiance",
+    "hashkey",
+    "htx",
+    "kraken",
+    "kucoin",
+    "kucoin-futures",
+    "mexc",
+    "okj",
+    "okx",
+    "phemex",
+    "poloniex",
+    "swyftx",
+    "wazirx",
+    "zaif"
+  ],
+  exchange_api_endpoint: [
+    "trades",
+    "deposits_withdrawals",
+    "bnb_conversions",
+    "conversions",
+    "convert_transfer",
+    "distributions",
+    "eth_staking_redemptions",
+    "eth_staking_staking",
+    "eth_staking_wbeth_unwraps",
+    "eth_staking_wbeth_wraps",
+    "european_options",
+    "fiat_payments",
+    "futures_coin_m_income",
+    "futures_usds_m_income",
+    "locked_staking_early_redemptions",
+    "margin_borrows_cross",
+    "margin_borrows_isolated",
+    "margin_repays_cross",
+    "margin_repays_isolated",
+    "margin_trade_cross",
+    "margin_trade_isolated",
+    "rebate_commissions",
+    "rebate_referrals",
+    "simple_earn_flexible_realtime_rewards",
+    "withdrawals",
+    "deposits",
+    "convert_dust",
+    "referral_rewards_referee",
+    "referral_rewards_referrer",
+    "staking_rewards_history",
+    "futures_pnl_fund_flow",
+    "margin_trades",
+    "lending",
+    "spot_tax_records",
+    "spot_tax_records_uta",
+    "futures_coin",
+    "futures_coin_uta",
+    "futures_usdc",
+    "futures_usdc_uta",
+    "futures_usdt",
+    "futures_usdt_uta",
+    "futures",
+    "orders",
+    "store",
+    "convert",
+    "convert_small_balances_funding_account",
+    "derivative_inverse_futures",
+    "derivative_inverse_perp",
+    "derivative_linear_futures",
+    "derivative_linear_perp_usdc",
+    "derivative_linear_perp_usdt",
+    "fee_refunds",
+    "usdc_options",
+    "usdt_options",
+    "advanced_trades",
+    "buys",
+    "interests",
+    "sells",
+    "sends",
+    "fills",
+    "fee_charges",
+    "affiliate_payments",
+    "referral_payments",
+    "referral_trade_commissions",
+    "swaps",
+    "borrowing",
+    "lt_creations",
+    "funding",
+    "lt_redemptions",
+    "staking",
+    "spot_account_book",
+    "perp_futures",
+    "deposit",
+    "spend",
+    "transfer",
+    "withdrawal",
+    "bonus_and_staking",
+    "transactions",
+    "margin_borrow_interests",
+    "clawbacks",
+    "funding_futures",
+    "funding_swaps",
+    "liquidations",
+    "margin",
+    "options",
+    "adjustments",
+    "affiliate_payouts",
+    "earn",
+    "auto_invest",
+    "blvt_redemptions",
+    "blvt_subscriptions",
+    "vanilla_options",
+    "leveraged_token",
+    "margin_borrows",
+    "margin_repays",
+    "lendings"
+  ],
+  defi_exchange: [
+    "bsc",
+    "ethereum",
+    "fantom",
+    "heco",
+    "polygon",
+    "polygon_zkevm",
+    "avalanche",
+    "arbitrum",
+    "optimism",
+    "base",
+    "berachain",
+    "blast",
+    "astar",
+    "astar_zkevm",
+    "oasys",
+    "mchverse",
+    "tcgverse",
+    "homeverse",
+    "chainverse",
+    "saakuruverse",
+    "yooldoverse",
+    "defiverse",
+    "dm2verse",
+    "gesoverse",
+    "zksync_era",
+    "flare",
+    "gnosis",
+    "linea",
+    "scroll",
+    "sei_evm",
+    "soneium",
+    "sonic",
+    "unichain",
+    "abstract",
+    "celo",
+    "mantle",
+    "world",
+    "plasma",
+    "hyperevm",
+    "solana",
+    "sei",
+    "dymension",
+    "bitcoin",
+    "bitcoin_signet",
+    "cardano",
+    "sui"
+  ],
+  exchange: [
+    "ascendex",
+    "binance",
+    "binance-us",
+    "bingx",
+    "bitbns",
+    "bitbank",
+    "bitfinex",
+    "bitget",
+    "bitmart",
+    "bitrue",
+    "bitstamp",
+    "bittrex",
+    "bittrade",
+    "btcc",
+    "btcmarkets",
+    "btse",
+    "bybit",
+    "coinbase",
+    "coinbasepro",
+    "coincheck",
+    "coindcx",
+    "coinex",
+    "coinjar",
+    "coinlistpro",
+    "coinspot",
+    "coinswitch",
+    "cryptocom",
+    "decurret-store",
+    "deepcoin",
+    "deribit",
+    "ftx",
+    "ftx-japan",
+    "gateio",
+    "globiance",
+    "hashkey",
+    "htx",
+    "kraken",
+    "kucoin",
+    "kucoin-futures",
+    "mexc",
+    "okj",
+    "okx",
+    "phemex",
+    "poloniex",
+    "swyftx",
+    "wazirx",
+    "zaif",
+    "defi"
+  ],
+  endpoint: [
+    "trades",
+    "deposits_withdrawals",
+    "bnb_conversions",
+    "conversions",
+    "convert_transfer",
+    "distributions",
+    "eth_staking_redemptions",
+    "eth_staking_staking",
+    "eth_staking_wbeth_unwraps",
+    "eth_staking_wbeth_wraps",
+    "european_options",
+    "fiat_payments",
+    "futures_coin_m_income",
+    "futures_usds_m_income",
+    "locked_staking_early_redemptions",
+    "margin_borrows_cross",
+    "margin_borrows_isolated",
+    "margin_repays_cross",
+    "margin_repays_isolated",
+    "margin_trade_cross",
+    "margin_trade_isolated",
+    "rebate_commissions",
+    "rebate_referrals",
+    "simple_earn_flexible_realtime_rewards",
+    "withdrawals",
+    "deposits",
+    "convert_dust",
+    "referral_rewards_referee",
+    "referral_rewards_referrer",
+    "staking_rewards_history",
+    "futures_pnl_fund_flow",
+    "margin_trades",
+    "lending",
+    "spot_tax_records",
+    "spot_tax_records_uta",
+    "futures_coin",
+    "futures_coin_uta",
+    "futures_usdc",
+    "futures_usdc_uta",
+    "futures_usdt",
+    "futures_usdt_uta",
+    "futures",
+    "orders",
+    "store",
+    "convert",
+    "convert_small_balances_funding_account",
+    "derivative_inverse_futures",
+    "derivative_inverse_perp",
+    "derivative_linear_futures",
+    "derivative_linear_perp_usdc",
+    "derivative_linear_perp_usdt",
+    "fee_refunds",
+    "usdc_options",
+    "usdt_options",
+    "advanced_trades",
+    "buys",
+    "interests",
+    "sells",
+    "sends",
+    "fills",
+    "fee_charges",
+    "affiliate_payments",
+    "referral_payments",
+    "referral_trade_commissions",
+    "swaps",
+    "borrowing",
+    "lt_creations",
+    "funding",
+    "lt_redemptions",
+    "staking",
+    "spot_account_book",
+    "perp_futures",
+    "deposit",
+    "spend",
+    "transfer",
+    "withdrawal",
+    "bonus_and_staking",
+    "transactions",
+    "margin_borrow_interests",
+    "clawbacks",
+    "funding_futures",
+    "funding_swaps",
+    "liquidations",
+    "margin",
+    "options",
+    "adjustments",
+    "affiliate_payouts",
+    "earn",
+    "auto_invest",
+    "blvt_redemptions",
+    "blvt_subscriptions",
+    "vanilla_options",
+    "leveraged_token",
+    "margin_borrows",
+    "margin_repays",
+    "lendings",
+    "bsc",
+    "ethereum",
+    "fantom",
+    "heco",
+    "polygon",
+    "polygon_zkevm",
+    "avalanche",
+    "arbitrum",
+    "optimism",
+    "base",
+    "berachain",
+    "blast",
+    "astar",
+    "astar_zkevm",
+    "oasys",
+    "mchverse",
+    "tcgverse",
+    "homeverse",
+    "chainverse",
+    "saakuruverse",
+    "yooldoverse",
+    "defiverse",
+    "dm2verse",
+    "gesoverse",
+    "zksync_era",
+    "flare",
+    "gnosis",
+    "linea",
+    "scroll",
+    "sei_evm",
+    "soneium",
+    "sonic",
+    "unichain",
+    "abstract",
+    "celo",
+    "mantle",
+    "world",
+    "plasma",
+    "hyperevm",
+    "solana",
+    "sei",
+    "dymension",
+    "bitcoin",
+    "bitcoin_signet",
+    "cardano",
+    "sui"
+  ],
+  "exchange-id": [
+    "ascendex",
+    "binance",
+    "binance-us",
+    "bingx",
+    "bitbns",
+    "bitbank",
+    "bitfinex",
+    "bitget",
+    "bitmart",
+    "bitrue",
+    "bitstamp",
+    "bittrex",
+    "bittrade",
+    "btcc",
+    "btcmarkets",
+    "btse",
+    "bybit",
+    "coinbase",
+    "coinbasepro",
+    "coincheck",
+    "coindcx",
+    "coinex",
+    "coinjar",
+    "coinlistpro",
+    "coinspot",
+    "coinswitch",
+    "cryptocom",
+    "decurret-store",
+    "deepcoin",
+    "deribit",
+    "ftx",
+    "ftx-japan",
+    "gateio",
+    "globiance",
+    "hashkey",
+    "htx",
+    "kraken",
+    "kucoin",
+    "kucoin-futures",
+    "mexc",
+    "okj",
+    "okx",
+    "phemex",
+    "poloniex",
+    "swyftx",
+    "wazirx",
+    "zaif",
+    "bsc",
+    "ethereum",
+    "fantom",
+    "heco",
+    "polygon",
+    "polygon_zkevm",
+    "avalanche",
+    "arbitrum",
+    "optimism",
+    "base",
+    "berachain",
+    "blast",
+    "astar",
+    "astar_zkevm",
+    "oasys",
+    "mchverse",
+    "tcgverse",
+    "homeverse",
+    "chainverse",
+    "saakuruverse",
+    "yooldoverse",
+    "defiverse",
+    "dm2verse",
+    "gesoverse",
+    "zksync_era",
+    "flare",
+    "gnosis",
+    "linea",
+    "scroll",
+    "sei_evm",
+    "soneium",
+    "sonic",
+    "unichain",
+    "abstract",
+    "celo",
+    "mantle",
+    "world",
+    "plasma",
+    "hyperevm",
+    "solana",
+    "sei",
+    "dymension",
+    "bitcoin",
+    "bitcoin_signet",
+    "cardano",
+    "sui",
+    "defi",
+    "EVM",
+    "SOLANA",
+    "COSMOS",
+    "BITCOIN",
+    "CARDANO",
+    "SUI"
+  ],
+  "reporting-ccy": [
+    "AUD",
+    "BRL",
+    "CAD",
+    "CHF",
+    "EUR",
+    "GBP",
+    "HKD",
+    "INR",
+    "JPY",
+    "KRW",
+    "NZD",
+    "SGD",
+    "TRY",
+    "TWD",
+    "USD"
+  ],
+  state: ["QUEUED", "STARTED", "DONE", "ERROR"],
+  timezone: [
+    "Africa/Abidjan",
+    "Africa/Accra",
+    "Africa/Addis_Ababa",
+    "Africa/Algiers",
+    "Africa/Asmara",
+    "Africa/Asmera",
+    "Africa/Bamako",
+    "Africa/Bangui",
+    "Africa/Banjul",
+    "Africa/Bissau",
+    "Africa/Blantyre",
+    "Africa/Brazzaville",
+    "Africa/Bujumbura",
+    "Africa/Cairo",
+    "Africa/Casablanca",
+    "Africa/Ceuta",
+    "Africa/Conakry",
+    "Africa/Dakar",
+    "Africa/Dar_es_Salaam",
+    "Africa/Djibouti",
+    "Africa/Douala",
+    "Africa/El_Aaiun",
+    "Africa/Freetown",
+    "Africa/Gaborone",
+    "Africa/Harare",
+    "Africa/Johannesburg",
+    "Africa/Juba",
+    "Africa/Kampala",
+    "Africa/Khartoum",
+    "Africa/Kigali",
+    "Africa/Kinshasa",
+    "Africa/Lagos",
+    "Africa/Libreville",
+    "Africa/Lome",
+    "Africa/Luanda",
+    "Africa/Lubumbashi",
+    "Africa/Lusaka",
+    "Africa/Malabo",
+    "Africa/Maputo",
+    "Africa/Maseru",
+    "Africa/Mbabane",
+    "Africa/Mogadishu",
+    "Africa/Monrovia",
+    "Africa/Nairobi",
+    "Africa/Ndjamena",
+    "Africa/Niamey",
+    "Africa/Nouakchott",
+    "Africa/Ouagadougou",
+    "Africa/Porto-Novo",
+    "Africa/Sao_Tome",
+    "Africa/Timbuktu",
+    "Africa/Tripoli",
+    "Africa/Tunis",
+    "Africa/Windhoek",
+    "America/Adak",
+    "America/Anchorage",
+    "America/Anguilla",
+    "America/Antigua",
+    "America/Araguaina",
+    "America/Argentina/Buenos_Aires",
+    "America/Argentina/Catamarca",
+    "America/Argentina/ComodRivadavia",
+    "America/Argentina/Cordoba",
+    "America/Argentina/Jujuy",
+    "America/Argentina/La_Rioja",
+    "America/Argentina/Mendoza",
+    "America/Argentina/Rio_Gallegos",
+    "America/Argentina/Salta",
+    "America/Argentina/San_Juan",
+    "America/Argentina/San_Luis",
+    "America/Argentina/Tucuman",
+    "America/Argentina/Ushuaia",
+    "America/Aruba",
+    "America/Asuncion",
+    "America/Atikokan",
+    "America/Atka",
+    "America/Bahia",
+    "America/Bahia_Banderas",
+    "America/Barbados",
+    "America/Belem",
+    "America/Belize",
+    "America/Blanc-Sablon",
+    "America/Boa_Vista",
+    "America/Bogota",
+    "America/Boise",
+    "America/Buenos_Aires",
+    "America/Cambridge_Bay",
+    "America/Campo_Grande",
+    "America/Cancun",
+    "America/Caracas",
+    "America/Catamarca",
+    "America/Cayenne",
+    "America/Cayman",
+    "America/Chicago",
+    "America/Chihuahua",
+    "America/Coral_Harbour",
+    "America/Cordoba",
+    "America/Costa_Rica",
+    "America/Creston",
+    "America/Cuiaba",
+    "America/Curacao",
+    "America/Danmarkshavn",
+    "America/Dawson",
+    "America/Dawson_Creek",
+    "America/Denver",
+    "America/Detroit",
+    "America/Dominica",
+    "America/Edmonton",
+    "America/Eirunepe",
+    "America/El_Salvador",
+    "America/Ensenada",
+    "America/Fort_Nelson",
+    "America/Fort_Wayne",
+    "America/Fortaleza",
+    "America/Glace_Bay",
+    "America/Godthab",
+    "America/Goose_Bay",
+    "America/Grand_Turk",
+    "America/Grenada",
+    "America/Guadeloupe",
+    "America/Guatemala",
+    "America/Guayaquil",
+    "America/Guyana",
+    "America/Halifax",
+    "America/Havana",
+    "America/Hermosillo",
+    "America/Indiana/Indianapolis",
+    "America/Indiana/Knox",
+    "America/Indiana/Marengo",
+    "America/Indiana/Petersburg",
+    "America/Indiana/Tell_City",
+    "America/Indiana/Vevay",
+    "America/Indiana/Vincennes",
+    "America/Indiana/Winamac",
+    "America/Indianapolis",
+    "America/Inuvik",
+    "America/Iqaluit",
+    "America/Jamaica",
+    "America/Jujuy",
+    "America/Juneau",
+    "America/Kentucky/Louisville",
+    "America/Kentucky/Monticello",
+    "America/Knox_IN",
+    "America/Kralendijk",
+    "America/La_Paz",
+    "America/Lima",
+    "America/Los_Angeles",
+    "America/Louisville",
+    "America/Lower_Princes",
+    "America/Maceio",
+    "America/Managua",
+    "America/Manaus",
+    "America/Marigot",
+    "America/Martinique",
+    "America/Matamoros",
+    "America/Mazatlan",
+    "America/Mendoza",
+    "America/Menominee",
+    "America/Merida",
+    "America/Metlakatla",
+    "America/Mexico_City",
+    "America/Miquelon",
+    "America/Moncton",
+    "America/Monterrey",
+    "America/Montevideo",
+    "America/Montreal",
+    "America/Montserrat",
+    "America/Nassau",
+    "America/New_York",
+    "America/Nipigon",
+    "America/Nome",
+    "America/Noronha",
+    "America/North_Dakota/Beulah",
+    "America/North_Dakota/Center",
+    "America/North_Dakota/New_Salem",
+    "America/Nuuk",
+    "America/Ojinaga",
+    "America/Panama",
+    "America/Pangnirtung",
+    "America/Paramaribo",
+    "America/Phoenix",
+    "America/Port-au-Prince",
+    "America/Port_of_Spain",
+    "America/Porto_Acre",
+    "America/Porto_Velho",
+    "America/Puerto_Rico",
+    "America/Punta_Arenas",
+    "America/Rainy_River",
+    "America/Rankin_Inlet",
+    "America/Recife",
+    "America/Regina",
+    "America/Resolute",
+    "America/Rio_Branco",
+    "America/Rosario",
+    "America/Santa_Isabel",
+    "America/Santarem",
+    "America/Santiago",
+    "America/Santo_Domingo",
+    "America/Sao_Paulo",
+    "America/Scoresbysund",
+    "America/Shiprock",
+    "America/Sitka",
+    "America/St_Barthelemy",
+    "America/St_Johns",
+    "America/St_Kitts",
+    "America/St_Lucia",
+    "America/St_Thomas",
+    "America/St_Vincent",
+    "America/Swift_Current",
+    "America/Tegucigalpa",
+    "America/Thule",
+    "America/Thunder_Bay",
+    "America/Tijuana",
+    "America/Toronto",
+    "America/Tortola",
+    "America/Vancouver",
+    "America/Virgin",
+    "America/Whitehorse",
+    "America/Winnipeg",
+    "America/Yakutat",
+    "America/Yellowknife",
+    "Antarctica/Casey",
+    "Antarctica/Davis",
+    "Antarctica/DumontDUrville",
+    "Antarctica/Macquarie",
+    "Antarctica/Mawson",
+    "Antarctica/McMurdo",
+    "Antarctica/Palmer",
+    "Antarctica/Rothera",
+    "Antarctica/South_Pole",
+    "Antarctica/Syowa",
+    "Antarctica/Troll",
+    "Antarctica/Vostok",
+    "Arctic/Longyearbyen",
+    "Asia/Aden",
+    "Asia/Almaty",
+    "Asia/Amman",
+    "Asia/Anadyr",
+    "Asia/Aqtau",
+    "Asia/Aqtobe",
+    "Asia/Ashgabat",
+    "Asia/Ashkhabad",
+    "Asia/Atyrau",
+    "Asia/Baghdad",
+    "Asia/Bahrain",
+    "Asia/Baku",
+    "Asia/Bangkok",
+    "Asia/Barnaul",
+    "Asia/Beirut",
+    "Asia/Bishkek",
+    "Asia/Brunei",
+    "Asia/Calcutta",
+    "Asia/Chita",
+    "Asia/Choibalsan",
+    "Asia/Chongqing",
+    "Asia/Chungking",
+    "Asia/Colombo",
+    "Asia/Dacca",
+    "Asia/Damascus",
+    "Asia/Dhaka",
+    "Asia/Dili",
+    "Asia/Dubai",
+    "Asia/Dushanbe",
+    "Asia/Famagusta",
+    "Asia/Gaza",
+    "Asia/Harbin",
+    "Asia/Hebron",
+    "Asia/Ho_Chi_Minh",
+    "Asia/Hong_Kong",
+    "Asia/Hovd",
+    "Asia/Irkutsk",
+    "Asia/Istanbul",
+    "Asia/Jakarta",
+    "Asia/Jayapura",
+    "Asia/Jerusalem",
+    "Asia/Kabul",
+    "Asia/Kamchatka",
+    "Asia/Karachi",
+    "Asia/Kashgar",
+    "Asia/Kathmandu",
+    "Asia/Katmandu",
+    "Asia/Khandyga",
+    "Asia/Kolkata",
+    "Asia/Krasnoyarsk",
+    "Asia/Kuala_Lumpur",
+    "Asia/Kuching",
+    "Asia/Kuwait",
+    "Asia/Macao",
+    "Asia/Macau",
+    "Asia/Magadan",
+    "Asia/Makassar",
+    "Asia/Manila",
+    "Asia/Muscat",
+    "Asia/Nicosia",
+    "Asia/Novokuznetsk",
+    "Asia/Novosibirsk",
+    "Asia/Omsk",
+    "Asia/Oral",
+    "Asia/Phnom_Penh",
+    "Asia/Pontianak",
+    "Asia/Pyongyang",
+    "Asia/Qatar",
+    "Asia/Qostanay",
+    "Asia/Qyzylorda",
+    "Asia/Rangoon",
+    "Asia/Riyadh",
+    "Asia/Saigon",
+    "Asia/Sakhalin",
+    "Asia/Samarkand",
+    "Asia/Seoul",
+    "Asia/Shanghai",
+    "Asia/Singapore",
+    "Asia/Srednekolymsk",
+    "Asia/Taipei",
+    "Asia/Tashkent",
+    "Asia/Tbilisi",
+    "Asia/Tehran",
+    "Asia/Tel_Aviv",
+    "Asia/Thimbu",
+    "Asia/Thimphu",
+    "Asia/Tokyo",
+    "Asia/Tomsk",
+    "Asia/Ujung_Pandang",
+    "Asia/Ulaanbaatar",
+    "Asia/Ulan_Bator",
+    "Asia/Urumqi",
+    "Asia/Ust-Nera",
+    "Asia/Vientiane",
+    "Asia/Vladivostok",
+    "Asia/Yakutsk",
+    "Asia/Yangon",
+    "Asia/Yekaterinburg",
+    "Asia/Yerevan",
+    "Atlantic/Azores",
+    "Atlantic/Bermuda",
+    "Atlantic/Canary",
+    "Atlantic/Cape_Verde",
+    "Atlantic/Faeroe",
+    "Atlantic/Faroe",
+    "Atlantic/Jan_Mayen",
+    "Atlantic/Madeira",
+    "Atlantic/Reykjavik",
+    "Atlantic/South_Georgia",
+    "Atlantic/St_Helena",
+    "Atlantic/Stanley",
+    "Australia/ACT",
+    "Australia/Adelaide",
+    "Australia/Brisbane",
+    "Australia/Broken_Hill",
+    "Australia/Canberra",
+    "Australia/Currie",
+    "Australia/Darwin",
+    "Australia/Eucla",
+    "Australia/Hobart",
+    "Australia/LHI",
+    "Australia/Lindeman",
+    "Australia/Lord_Howe",
+    "Australia/Melbourne",
+    "Australia/NSW",
+    "Australia/North",
+    "Australia/Perth",
+    "Australia/Queensland",
+    "Australia/South",
+    "Australia/Sydney",
+    "Australia/Tasmania",
+    "Australia/Victoria",
+    "Australia/West",
+    "Australia/Yancowinna",
+    "Brazil/Acre",
+    "Brazil/DeNoronha",
+    "Brazil/East",
+    "Brazil/West",
+    "CET",
+    "CST6CDT",
+    "Canada/Atlantic",
+    "Canada/Central",
+    "Canada/Eastern",
+    "Canada/Mountain",
+    "Canada/Newfoundland",
+    "Canada/Pacific",
+    "Canada/Saskatchewan",
+    "Canada/Yukon",
+    "Chile/Continental",
+    "Chile/EasterIsland",
+    "Cuba",
+    "EET",
+    "EST",
+    "EST5EDT",
+    "Egypt",
+    "Eire",
+    "Etc/GMT",
+    "Etc/GMT+0",
+    "Etc/GMT+1",
+    "Etc/GMT+10",
+    "Etc/GMT+11",
+    "Etc/GMT+12",
+    "Etc/GMT+2",
+    "Etc/GMT+3",
+    "Etc/GMT+4",
+    "Etc/GMT+5",
+    "Etc/GMT+6",
+    "Etc/GMT+7",
+    "Etc/GMT+8",
+    "Etc/GMT+9",
+    "Etc/GMT-0",
+    "Etc/GMT-1",
+    "Etc/GMT-10",
+    "Etc/GMT-11",
+    "Etc/GMT-12",
+    "Etc/GMT-13",
+    "Etc/GMT-14",
+    "Etc/GMT-2",
+    "Etc/GMT-3",
+    "Etc/GMT-4",
+    "Etc/GMT-5",
+    "Etc/GMT-6",
+    "Etc/GMT-7",
+    "Etc/GMT-8",
+    "Etc/GMT-9",
+    "Etc/GMT0",
+    "Etc/Greenwich",
+    "Etc/UCT",
+    "Etc/UTC",
+    "Etc/Universal",
+    "Etc/Zulu",
+    "Europe/Amsterdam",
+    "Europe/Andorra",
+    "Europe/Astrakhan",
+    "Europe/Athens",
+    "Europe/Belfast",
+    "Europe/Belgrade",
+    "Europe/Berlin",
+    "Europe/Bratislava",
+    "Europe/Brussels",
+    "Europe/Bucharest",
+    "Europe/Budapest",
+    "Europe/Busingen",
+    "Europe/Chisinau",
+    "Europe/Copenhagen",
+    "Europe/Dublin",
+    "Europe/Gibraltar",
+    "Europe/Guernsey",
+    "Europe/Helsinki",
+    "Europe/Isle_of_Man",
+    "Europe/Istanbul",
+    "Europe/Jersey",
+    "Europe/Kaliningrad",
+    "Europe/Kiev",
+    "Europe/Kirov",
+    "Europe/Lisbon",
+    "Europe/Ljubljana",
+    "Europe/London",
+    "Europe/Luxembourg",
+    "Europe/Madrid",
+    "Europe/Malta",
+    "Europe/Mariehamn",
+    "Europe/Minsk",
+    "Europe/Monaco",
+    "Europe/Moscow",
+    "Europe/Nicosia",
+    "Europe/Oslo",
+    "Europe/Paris",
+    "Europe/Podgorica",
+    "Europe/Prague",
+    "Europe/Riga",
+    "Europe/Rome",
+    "Europe/Samara",
+    "Europe/San_Marino",
+    "Europe/Sarajevo",
+    "Europe/Saratov",
+    "Europe/Simferopol",
+    "Europe/Skopje",
+    "Europe/Sofia",
+    "Europe/Stockholm",
+    "Europe/Tallinn",
+    "Europe/Tirane",
+    "Europe/Tiraspol",
+    "Europe/Ulyanovsk",
+    "Europe/Uzhgorod",
+    "Europe/Vaduz",
+    "Europe/Vatican",
+    "Europe/Vienna",
+    "Europe/Vilnius",
+    "Europe/Volgograd",
+    "Europe/Warsaw",
+    "Europe/Zagreb",
+    "Europe/Zaporozhye",
+    "Europe/Zurich",
+    "GB",
+    "GB-Eire",
+    "GMT",
+    "GMT+0",
+    "GMT-0",
+    "GMT0",
+    "Greenwich",
+    "HST",
+    "Hongkong",
+    "Iceland",
+    "Indian/Antananarivo",
+    "Indian/Chagos",
+    "Indian/Christmas",
+    "Indian/Cocos",
+    "Indian/Comoro",
+    "Indian/Kerguelen",
+    "Indian/Mahe",
+    "Indian/Maldives",
+    "Indian/Mauritius",
+    "Indian/Mayotte",
+    "Indian/Reunion",
+    "Iran",
+    "Israel",
+    "Jamaica",
+    "Japan",
+    "Kwajalein",
+    "Libya",
+    "MET",
+    "MST",
+    "MST7MDT",
+    "Mexico/BajaNorte",
+    "Mexico/BajaSur",
+    "Mexico/General",
+    "NZ",
+    "NZ-CHAT",
+    "Navajo",
+    "PRC",
+    "PST8PDT",
+    "Pacific/Apia",
+    "Pacific/Auckland",
+    "Pacific/Bougainville",
+    "Pacific/Chatham",
+    "Pacific/Chuuk",
+    "Pacific/Easter",
+    "Pacific/Efate",
+    "Pacific/Enderbury",
+    "Pacific/Fakaofo",
+    "Pacific/Fiji",
+    "Pacific/Funafuti",
+    "Pacific/Galapagos",
+    "Pacific/Gambier",
+    "Pacific/Guadalcanal",
+    "Pacific/Guam",
+    "Pacific/Honolulu",
+    "Pacific/Johnston",
+    "Pacific/Kiritimati",
+    "Pacific/Kosrae",
+    "Pacific/Kwajalein",
+    "Pacific/Majuro",
+    "Pacific/Marquesas",
+    "Pacific/Midway",
+    "Pacific/Nauru",
+    "Pacific/Niue",
+    "Pacific/Norfolk",
+    "Pacific/Noumea",
+    "Pacific/Pago_Pago",
+    "Pacific/Palau",
+    "Pacific/Pitcairn",
+    "Pacific/Pohnpei",
+    "Pacific/Ponape",
+    "Pacific/Port_Moresby",
+    "Pacific/Rarotonga",
+    "Pacific/Saipan",
+    "Pacific/Samoa",
+    "Pacific/Tahiti",
+    "Pacific/Tarawa",
+    "Pacific/Tongatapu",
+    "Pacific/Truk",
+    "Pacific/Wake",
+    "Pacific/Wallis",
+    "Pacific/Yap",
+    "Poland",
+    "Portugal",
+    "ROC",
+    "ROK",
+    "Singapore",
+    "Turkey",
+    "UCT",
+    "US/Alaska",
+    "US/Aleutian",
+    "US/Arizona",
+    "US/Central",
+    "US/East-Indiana",
+    "US/Eastern",
+    "US/Hawaii",
+    "US/Indiana-Starke",
+    "US/Michigan",
+    "US/Mountain",
+    "US/Pacific",
+    "US/Pacific-New",
+    "US/Samoa",
+    "UTC",
+    "Universal",
+    "W-SU",
+    "WET",
+    "Zulu"
+  ],
+  include: ["marketcap", "tokenAddresses"],
+  language: ["en", "ja"],
+  "corporate-mark-to-market-method": ["reversal", "cutoff"],
+  "cost-basis-method": [
+    "FIFO",
+    "LIFO",
+    "HIFO",
+    "Average Cost",
+    "Periodic Average",
+    "Monthly Periodic Average"
+  ],
+  "defi-translator": ["CONFIRM", "DIFFERENTIAL"],
+  "fiscal-year-end-month": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 45],
+  "fx-cost-basis-method": ["FIFO", "LIFO", "HIFO"],
+  "onboarding-status": [
+    "ledger-settings",
+    "starting-balance",
+    "completed-assistant",
+    "completed-balance"
+  ],
+  "transaction-type": ["unprocessed", "processed"],
+  transaction_action: [
+    "BONUS",
+    "BORROW",
+    "BUY",
+    "CASH",
+    "CONFIRM",
+    "DEFIFEE",
+    "DEPOSIT",
+    "EXPENSE",
+    "FUNDING",
+    "LEND",
+    "LENDING",
+    "LEVELUP",
+    "LOSS",
+    "MARGINGAIN",
+    "MARGINLOSS",
+    "MINING",
+    "PAY",
+    "RECOVER",
+    "REDUCE",
+    "RETURN",
+    "SELL",
+    "SENDFEE",
+    "STAKING",
+    "TIP",
+    "WITHDRAW",
+    "FEEPAID",
+    "FEERECV",
+    "IGNORE",
+    "REALIZED",
+    "SENDFEEEXPENSE",
+    "SENDFEEREDUCE",
+    "SETTLE",
+    "TIPREDUCE",
+    "UNSUPPORTED"
+  ],
+  column: ["ts", "processOrder", "vol", "fee"],
+  "source-mode": ["include", "exclude"],
+  "exchange-file-id": [
+    "aacoin.Dividend",
+    "aidos.Trades",
+    "aidos.Deposits",
+    "aidos.Withdrawals",
+    "ascendex.Trades",
+    "binance.TransactionRecords",
+    "binance.Trades",
+    "binance.Margin",
+    "binance.Borrow",
+    "binance.Repayment",
+    "binance.TradesIsolatedMargin",
+    "binance.BorrowIsolatedMargin",
+    "binance.RepaysIsolatedMargin",
+    "binance.Withdrawal",
+    "binance.Deposits",
+    "binance.FuturesTransactionsCoin",
+    "binance.FuturesTransactionsUSDT",
+    "binance.Subscription",
+    "binance.Redemption",
+    "binance.ReferralCommission",
+    "binance.ReferralCommissionShared",
+    "binance.BuyHistory",
+    "binance.Mining",
+    "binance.Convert",
+    "binance.AutoInvest",
+    "binance.LockedStakingInterests",
+    "binance.Eth2StakingHistoryRedemptions",
+    "binance.Eth2StakingHistoryStake",
+    "binance.Eth2StakingHistoryInterest",
+    "binance.Eth2StakingHistoryWbethWraps",
+    "binance.Eth2StakingHistoryWbethUnwraps",
+    "binance.FlexibleRealtimeAPRRewards",
+    "binance.FlexibleBonusReward",
+    "binance.FlexibleInterest",
+    "binance.FlexibleTrialFund",
+    "binance.Locked",
+    "binance.LockedSavings",
+    "binance.SavingsActivities",
+    "binance.BotTrading",
+    "binance.C2C",
+    "bingx.Trades",
+    "bingx.PerpetualFutures",
+    "bingx.StandardFutures",
+    "bingx.DepositsWithdrawals",
+    "bitbuy.Trades",
+    "bitbank.Trades",
+    "bitbank.Withdrawals",
+    "bitbank.JpyWithdrawals",
+    "bitbank.Deposits",
+    "bitbank.JpyDeposits",
+    "bitbank.Store",
+    "bitbank.Margin",
+    "bitcastle.Trades",
+    "bitfinex.Trades",
+    "bitfinex.Lending",
+    "bitfinex.DepositsWithdrawals",
+    "bitflyer.All",
+    "bitflyer.Collateral",
+    "bitflyer.Conversion",
+    "bitflyer.Lightning",
+    "bitget.Trades",
+    "bitget.FuturesCoin",
+    "bitget.FuturesUSDC",
+    "bitget.FuturesUSDT",
+    "bitget.CrossMargin",
+    "bitget.Margin",
+    "bitget.Transfers",
+    "bitlending.Lending",
+    "bitmart.Futures",
+    "bitmart.Trades",
+    "bitmaxme.Trades",
+    "bitmex.Wallet",
+    "bitpoint.Trades",
+    "bitpoint.Leverage",
+    "bitrue.Benefits",
+    "bitrue.Deposits",
+    "bitrue.Trades",
+    "bitrue.Withdraw",
+    "bitstamp.Transactions",
+    "bittrex.Orders",
+    "bittrex.DepositsWithdrawals",
+    "bittrade.Store",
+    "bittrade.Trades",
+    "bittrade.Withdrawals",
+    "bitz.Trades",
+    "bkex.Spot",
+    "bkex.Contract",
+    "blockfi.Trades",
+    "btcbox.Trades",
+    "btcbox.easytrade",
+    "btcbox.DepositsWithdrawals",
+    "btse.Spot",
+    "btse.Rewards",
+    "btse.Withdrawals",
+    "bybit.Trades",
+    "bybit.ByFi",
+    "bybit.CopyTrading",
+    "bybit.DerivativeClosedPNL",
+    "bybit.DerivativeUSDTPerpetual",
+    "bybit.DerivativeUSDCPerpetual",
+    "bybit.UsdcOptions",
+    "bybit.UsdtOptions",
+    "bybit.WalletFlow",
+    "c0ban.Buys",
+    "c0ban.Trades",
+    "cardano-pooltool.Staking",
+    "changelly.Trades",
+    "chocoin.Lending",
+    "coinbase.Trades",
+    "coinbase-japan.Trades",
+    "coinbasepro.Account",
+    "coinbasepro.Fills",
+    "coinbest.Trades",
+    "coinbook.Trades",
+    "coincheck.Standard",
+    "coincheck.StandardAPICompatible",
+    "coincheck.Margin",
+    "coincheck.Staking",
+    "coindcx.Insta",
+    "coindcx.Trades",
+    "coindcx.FuturesInrM",
+    "coindcx.FuturesUsdtM",
+    "coinex.Gifts",
+    "coinex.Trades",
+    "coinexchange.Trades",
+    "coinexchange.Deposits",
+    "coinexchange.Withdrawals",
+    "coinjar.Fills",
+    "coinjar.PurchasesAndSales",
+    "coinjar.Withdrawals",
+    "coinlist.Wallet",
+    "coinlistpro.Trades",
+    "coinon.Lending",
+    "coinsquare.Trades",
+    "coinspot.Trades",
+    "coinspot.SendsReceives",
+    "coinswitch.Trades",
+    "coinswitch.Futures",
+    "cointax.Confirm",
+    "cointax.BybitAssetChangeUta",
+    "cointax.BybitFunding",
+    "cointax.BybitMiningDual",
+    "cointrade.Cashflow",
+    "cointrade.Trades",
+    "crossexchange.Trades",
+    "crossexchange.Wallet",
+    "cryptocom.Trades",
+    "cryptocom.Withdrawal",
+    "cryptocom.App",
+    "cryptopia.Trades",
+    "cryptopia.DepositsWithdrawals",
+    "User.Custom",
+    "cygnos.Trades",
+    "decurret-exchange.Trades",
+    "deepcoin.InversePerpetual",
+    "deepcoin.UsdtPerpetual",
+    "daedalus.Wallet",
+    "daedalus.DepositsWithdrawals",
+    "edgex.UsdtPerpetual",
+    "dhealthtax.Transfers",
+    "dhealthtax.Receipt",
+    "dmm.Cashflow",
+    "dmm.Trades",
+    "exodus.Wallet",
+    "fintertech.LoanDisposal",
+    "fintertech.LoanPayment",
+    "fintertech.Staking",
+    "fisco.Trades",
+    "fisco.Deposits",
+    "fisco.Withdrawals",
+    "fisco.JpyWithdrawals",
+    "ftx.Trades",
+    "ftx.Funds",
+    "ftx.Creation",
+    "ftx.Redemption",
+    "ftx.Staking",
+    "ftx.Deposits",
+    "ftx.Withdrawals",
+    "ftx.Borrow",
+    "ftx.Lending",
+    "ftx.RebateReferrals",
+    "ftx-earn.Earn",
+    "ftx-japan.Borrow",
+    "ftx-japan.Deposits",
+    "ftx-japan.Funds",
+    "ftx-japan.Lending",
+    "ftx-japan.RebateReferrals",
+    "ftx-japan.Trades",
+    "ftx-japan.Withdrawals",
+    "fxcoin.Trades",
+    "fxcoin.Cashflow",
+    "fuelco.tokutokuStaking",
+    "fuelco.kotsukotsuStaking",
+    "fuelco.wakuwakuStaking",
+    "fuelhash.Mining",
+    "gateio.Trades",
+    "gateio.TradesBatchData",
+    "gateio.PilotTrading",
+    "gateio.Withdrawals",
+    "ginco.Wallet",
+    "gmo.Pre2017Trades",
+    "gmo.Trades",
+    "gmo.LegacyTrades",
+    "gmo.CryptoDepositsWithdrawals",
+    "gmo.CashDepositsWithdrawals",
+    "globiance.Trades",
+    "hashhub-lending.Lending",
+    "hitbtc.Trades",
+    "hitbtc.DepositsWithdrawals",
+    "hotbit.Trades",
+    "htx.TradesNew",
+    "htx.Trades",
+    "htx.FuturesUSDT",
+    "hyperliquid.Trades",
+    "hyperliquid.Funding",
+    "inx.Trades",
+    "inx.Withdrawal",
+    "kanga.Trades",
+    "kanga.Wallet",
+    "koindex.Wallet",
+    "kraken.Ledger",
+    "kraken.Trades",
+    "ledn.Trades",
+    "ledn.Growth",
+    "kucoin.Trades",
+    "kucoin.Conversions",
+    "kucoin.P2PFiatTrades",
+    "kucoin.Withdrawals",
+    "kucoin.Deposits",
+    "kucoin-futures.Transactions",
+    "lbank.Spot",
+    "ledger.DepositsWithdrawals",
+    "lendee.Lending",
+    "liqui.Trades",
+    "liqui.Deposits",
+    "liqui.Withdrawals",
+    "liquid.Trades",
+    "mercatox.Trades",
+    "mercoin.Trades",
+    "mexc.Trades",
+    "mexc.Futures",
+    "mexc.Withdrawals",
+    "mexc.Deposits",
+    "midex.Trades",
+    "mudrex.Trades",
+    "nemwallet.Transfers",
+    "nemwallet.Harvests",
+    "newton.Trades",
+    "nexo.Wallet",
+    "nexo.Futures",
+    "nexopro.Trades",
+    "nexopro.Futures",
+    "okj.Trades",
+    "okj.DepositsWithdrawals",
+    "okx.Trades",
+    "okx.FundingHistory",
+    "paradex.Fills",
+    "pbrlending.Lending",
+    "phemex.Trades",
+    "phemex.Withdrawals",
+    "phemex.Deposits",
+    "phemex.Convert",
+    "phemex.Contracts",
+    "pointpay.Staking",
+    "poloniex.Trades",
+    "poloniex.Borrow",
+    "poloniex.Lending",
+    "poloniex.Deposits",
+    "poloniex.Withdrawals",
+    "poloniex.Adjustments",
+    "probit.Trades",
+    "probit.Transfers",
+    "rakuten.Trades",
+    "rakuten.Leverage",
+    "renkin.Lending",
+    "sbivc.TradesNew",
+    "sbivc.Cashflow",
+    "sbivc.FLRDelegateRewards",
+    "sbivc.Trades",
+    "sblox.Trades",
+    "shakepay.Trades",
+    "special-org.Bitbank",
+    "special-org.Bitflyer",
+    "special-org.BitflyerCollateral",
+    "special-org.BybitAssetChangeUta",
+    "special-org.CoincheckAccountComplete",
+    "special-org.CoincheckHistory",
+    "special-org.Gmo",
+    "special-org.SbivcTradeAccountComplete",
+    "spectrocoin.Trades",
+    "stex.Trades",
+    "suncrypto.Trades",
+    "swissborg.AccountStatement",
+    "swyftx.Trades",
+    "taotao.Cashflow",
+    "taotao.Trades",
+    "tidex.Trades",
+    "tradesatoshi.Trades",
+    "tradesatoshi.Transfers",
+    "tradesatoshi.Deposits",
+    "tradesatoshi.Withdrawals",
+    "trezor.Wallet",
+    "trezor.Suite",
+    "walletofsatoshi.Custody",
+    "walletofsatoshi.SelfCustody",
+    "wazirx.Trades",
+    "wealthsimple.Trades",
+    "wealthsimple.Swaps",
+    "whalefin.Balance",
+    "whitebit.Earn",
+    "whitebit.Trades",
+    "ultorex.Trades",
+    "ultorex.Wallet",
+    "uphold.Transfers",
+    "vantage-trading.ClosedTrades",
+    "xemtax.Transfers",
+    "xemtax.Receipt",
+    "yobit.Trade",
+    "yobit.Deposit",
+    "yobit.Withdrawal",
+    "yoroi.Trades",
+    "youhodler.Trades",
+    "zaif.Trades2014",
+    "zaif.Trades2015",
+    "zaif.Trades2016",
+    "zaif.Trades2017",
+    "zaif.Trades2018",
+    "zaif.Trades2019",
+    "zaif.Trades2020",
+    "zaif.Trades2021",
+    "zaif.Trades2022",
+    "zaif.Trades2023",
+    "zaif.Trades2024",
+    "zaif.Trades2025",
+    "zaif.Trades2026",
+    "zaif.AirFX2014",
+    "zaif.AirFX2015",
+    "zaif.AirFX2016",
+    "zaif.AirFX2017",
+    "zaif.AirFX2018",
+    "zaif.AirFX2019",
+    "zaif.AirFX2020",
+    "zaif.AirFX2021",
+    "zaif.Margin2015",
+    "zaif.Margin2016",
+    "zaif.Margin2017",
+    "zaif.Margin2018",
+    "zaif.Margin2019",
+    "zaif.Adjustment",
+    "zaif.Bonus",
+    "zaif.CreditTrade",
+    "zaif.Deposits",
+    "zaif.Withdrawals",
+    "zaif.JpyWithdrawals",
+    "zaif.Reserve",
+    "zaif.InterestBonus",
+    "zaif.SentTip",
+    "zaif.ReceivedTip",
+    "zebpay.consolidatedTrades",
+    "zebpay.Perpetual",
+    "zoomex.DerivativeUSDTPerpetual",
+    "cex.DepositsWithdrawals",
+    "coincheckotc.All",
+    "coinsuper.Deposits",
+    "coinsuper.Withdrawals",
+    "focrex.TradeHistory",
+    "idex.DepositsWithdrawals"
+  ]
+};

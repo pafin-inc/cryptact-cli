@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { ExitCode } from "../../../lib/errors";
 import { fmt, isJsonMode, printJson, printKeyValue, warn } from "../../../lib/output";
 import { loadTokens } from "../../../lib/token-store";
 
@@ -15,6 +16,7 @@ export async function handler({
     } else {
       warn("Not logged in. Run `cryptact auth login` to authenticate.");
     }
+    process.exitCode = ExitCode.AUTH;
     return;
   }
 

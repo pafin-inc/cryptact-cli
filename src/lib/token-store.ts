@@ -28,6 +28,18 @@ export function saveTokens(tokens: StoredTokens): void {
   });
 }
 
+/** Own userguid from the id_token `sub` claim, or null when not logged in. */
+export function ownUserguid(): string | null {
+  const payload = loadTokens()?.id_token?.split(".")[1];
+  if (!payload) return null;
+  try {
+    const { sub } = JSON.parse(Buffer.from(payload, "base64url").toString()) as { sub?: string };
+    return sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function clearTokens(): void {
   try {
     fs.unlinkSync(TOKEN_FILE);

@@ -1,4 +1,6 @@
+/** Single ledger per account, derived from the id token. Customer-aware paths are enterprise-only. */
 import { apiPost } from "./api-client";
+import { UsageError } from "./errors";
 import { loadTokens } from "./token-store";
 
 interface LedgerSearchResult {
@@ -29,7 +31,12 @@ function getUserGuidFromIdToken(): string {
   return decoded.sub as string;
 }
 
-export async function resolveLedgerId(): Promise<string> {
+export async function resolveLedgerId(customerGuidOverride?: string): Promise<string> {
+  // `--customer` is enterprise-only — fail loudly instead of silently falling
+  // back to the caller's own ledger.
+  if (customerGuidOverride) {
+    throw new UsageError("--customer is not supported in this build (single personal ledger).");
+  }
   const userguid = getUserGuidFromIdToken();
   const data = await apiPost<LedgerSearchResponse>("/ledger/search", {
     filter: { userguid, orgId: null },
